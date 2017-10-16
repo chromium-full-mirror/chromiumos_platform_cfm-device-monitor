@@ -110,14 +110,6 @@ bool HotplugDeviceAt(uint32_t gpio_num) {
   const uint32_t kHotplugSleepTimeMilliseconds = 200;
   std::string gpio_string = std::to_string(gpio_num);
 
-  // Create fd for gpio power toggling.
-  base::FilePath export_path("/sys/class/gpio/export");
-  if (base::WriteFile(export_path, gpio_string.c_str(), gpio_string.length()) <
-      0) {
-    LOG(WARNING) << "Failed to export GPIO fd.";
-    return false;
-  }
-
   // Set direction of byte flow in gpio.
   std::string out_string = "out";
   base::FilePath direction_path("/sys/class/gpio/gpio" + gpio_string +
