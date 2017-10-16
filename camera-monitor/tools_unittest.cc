@@ -10,15 +10,6 @@
 
 namespace {
 
-// Made up vid, pid that could not possibly belong to any device.
-const uint16_t kBogusVid = 9999;
-const uint16_t kBogusPid = 9999;
-
-// Vid, pid belonging to Linux root hub, present in all Linux and chrome
-// machines.
-const uint16_t kRealVid = 0x1d6b;
-const uint16_t kRealPid = 0x0002;
-
 const char kFileEmptyPath[] = "camera-monitor/example/file_empty.txt";
 const char kFileNoErrorPath[] = "camera-monitor/example/"
                                 "file_no_error.txt";
@@ -30,45 +21,6 @@ class ToolTest : public ::testing::Test {
   // void SetUp() override { }
   // void TearDown() override { }
 };
-
-TEST_F(ToolTest, GetDeviceNoDeviceReturnFalseAndNullptr) {
-  libusb_device *device = nullptr;
-  std::string err_msg = "";
-  // Bogus vid and bogus pid.
-  EXPECT_FALSE(
-      huddly_monitor::GetDevice(kBogusVid, kBogusPid, &device, &err_msg));
-  EXPECT_EQ(device, nullptr);
-  EXPECT_TRUE(err_msg.empty());
-
-  // Only bogus vid.
-  EXPECT_FALSE(
-      huddly_monitor::GetDevice(kBogusVid, kRealPid, &device, &err_msg));
-  EXPECT_EQ(device, nullptr);
-  EXPECT_TRUE(err_msg.empty());
-
-  // Only bogus pid.
-  EXPECT_FALSE(
-      huddly_monitor::GetDevice(kRealVid, kBogusPid, &device, &err_msg));
-  EXPECT_EQ(device, nullptr);
-  EXPECT_TRUE(err_msg.empty());
-}
-
-TEST_F(ToolTest, GetDeviceReturnTrueAndRightDevice) {
-  libusb_device *device = nullptr;
-  std::string err_msg;
-  libusb_device_descriptor descriptor;
-
-  EXPECT_TRUE(huddly_monitor::GetDevice(kRealVid, kRealPid, &device, &err_msg));
-  EXPECT_NE(device, nullptr);
-
-  // Get descriptor and assert it succeeded before using it.
-  int ret = libusb_get_device_descriptor(device, &descriptor);
-  ASSERT_EQ(ret, 0);
-
-  EXPECT_EQ(descriptor.idVendor, kRealVid);
-  EXPECT_EQ(descriptor.idProduct, kRealPid);
-  EXPECT_TRUE(err_msg.empty());
-}
 
 TEST_F(ToolTest, TestGetGpioNum) {
   // Values for bus 1.
