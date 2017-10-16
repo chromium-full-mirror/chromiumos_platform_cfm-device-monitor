@@ -1,0 +1,13 @@
+# Rules for starting huddly-monitor, within cfm-device-monitor
+
+# Adding device
+ACTION=="add", SUBSYSTEM=="usb", \
+ENV{ID_VENDOR_ID}=="2bd9", ENV{ID_MODEL_ID}=="0011", \
+MODE="0664", \
+RUN+="/usr/bin/huddlymonitor_update true"
+
+# Removing device
+ACTION=="remove", SUBSYSTEM=="usb", \
+ENV{ID_VENDOR_ID}=="2bd9", ENV{ID_MODEL_ID}=="0011", \
+MODE="0664", \
+RUN+="/usr/bin/huddlymonitor_update false"
