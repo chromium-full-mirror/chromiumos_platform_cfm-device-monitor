@@ -8,7 +8,7 @@ if [ "$#" -ne 1 ]; then
   exit 1
 fi
 
-if [ "$1" == "true" ] || [ "$1" == "false" ]; then
+if [ "$1" = "true" ] || [ "$1" = "false" ]; then
   /usr/bin/dbus-send --system --type=method_call \
     --dest=org.chromium.huddlymonitor            \
     /org/chromium/huddlymonitor                  \
