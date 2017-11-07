@@ -32,6 +32,26 @@
         'camera-monitor/main.cc',
       ],
     },
+    {
+      'target_name': 'libmimo-monitor',
+      'type': 'static_library',
+      'sources': [
+        'mimo-monitor/displaylink_monitor.cc',
+        'mimo-monitor/mimo_monitor.cc',
+        'mimo-monitor/sis_monitor.cc',
+        'mimo-monitor/utils.cc',
+      ],
+    },
+    {
+      'target_name': 'mimo-monitor',
+      'type': 'executable',
+      'dependencies': [
+        'libmimo-monitor',
+      ],
+      'sources': [
+        'mimo-monitor/main.cc',
+      ],
+    },
   ],
   'conditions': [
     ['USE_test == 1', {
@@ -46,7 +66,6 @@
           ],
         },
       ],
-    },
-    ],
+    },],
   ],
 }

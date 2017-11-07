@@ -1,0 +1,6 @@
+# Mount SiS USB interface with desired usr/group so that mimo-monitor can access
+# it.
+
+ACTION=="add", SUBSYSTEM=="usb", \
+ENV{ID_VENDOR_ID}=="266e", ENV{ID_MODEL_ID}=="0110|0102", \
+OWNER="cfm-monitor", GROUP="cfm-peripherals", MODE="0664"
