@@ -10,11 +10,8 @@
 namespace huddly_monitor {
 
 MockMonitor::MockMonitor(bool init_wait_val, uint32_t sleep_time)
-    : AbstractMonitor(init_wait_val, sleep_time) {
-  vitals_exist_custom = true;
-  local_timestamp = 0;
-  local_condition = init_wait_val;
-}
+    : AbstractMonitor(init_wait_val, sleep_time),
+      local_condition(init_wait_val) {}
 
 MockMonitor::~MockMonitor() {}
 
@@ -53,4 +50,5 @@ void MockMonitor::StartMocking() {
     }
   }
 }
+
 }  // namespace huddly_monitor

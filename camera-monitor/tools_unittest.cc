@@ -3,24 +3,27 @@
 // found in the LICENSE file.
 
 #include "cfm-device-monitor/camera-monitor/tools.h"
+
+#include <stdlib.h>
+
+#include <base/files/file_path.h>
+#include <base/files/file_util.h>
+#include <base/files/scoped_file.h>
 #include <brillo/test_helpers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <stdlib.h>
 
 namespace {
 
 const char kFileEmptyPath[] = "camera-monitor/example/file_empty.txt";
-const char kFileNoErrorPath[] = "camera-monitor/example/"
-                                "file_no_error.txt";
+const char kFileNoErrorPath[] = "camera-monitor/example/file_no_error.txt";
 const char kFileWithErrorPath[] = "camera-monitor/example/file_with_error.txt";
+const char kFileWithException[] = "camera-monitor/example/file_with_exception.txt";
 const char kTestErrorKey[] = "TOOLS_UNITTEST_ERROR";
+const char kTestErrorException[] = "TOOLS_UNITTEST_ERROR EXCEPT";
+const char kTestNotPresentException[] = "TOOLS_UNITTEST_ERROR foo";
 
-class ToolTest : public ::testing::Test {
- protected:
-  // void SetUp() override { }
-  // void TearDown() override { }
-};
+class ToolTest : public ::testing::Test {};
 
 TEST_F(ToolTest, TestGetGpioNumGuado) {
   // Values for bus 1.
@@ -56,49 +59,69 @@ TEST_F(ToolTest, TestGetUsbPortIdFizz) {
   EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 5), UINT8_MAX);
 }
 
-TEST_F(ToolTest, TestLookForErrorBlockingAll) {
-  // Setup.
+TEST_F(ToolTest, TestNullFile) {
   std::string err_msg;
+
   FILE *file_null = nullptr;
 
-  FILE *file_empty = fopen(kFileEmptyPath, "r");
-  ASSERT_NE(file_empty, nullptr)
-      << "Failed to open test file " << kFileEmptyPath << ". Check path.";
-
-  FILE *file_no_error = fopen(kFileNoErrorPath, "r");
-  ASSERT_NE(file_no_error, nullptr)
-      << "Failed to open test file " << kFileNoErrorPath << ". Check path.";
-  ASSERT_FALSE(ferror(file_no_error));
-
-  FILE *file_with_error = fopen(kFileWithErrorPath, "r");
-  ASSERT_NE(file_empty, nullptr)
-      << "Failed to open test file " << kFileWithErrorPath << ". Check path.";
-  ASSERT_FALSE(ferror(file_with_error));
-
-  EXPECT_FALSE(
-      huddly_monitor::LookForErrorBlocking(kTestErrorKey, file_null, &err_msg));
+  EXPECT_FALSE(huddly_monitor::LookForErrorBlocking(
+      kTestErrorKey, "", file_null, &err_msg));
   EXPECT_FALSE(err_msg.empty());
-  err_msg = "";
+}
 
-  EXPECT_FALSE(huddly_monitor::LookForErrorBlocking(kTestErrorKey, file_empty,
-                                                    &err_msg));
+TEST_F(ToolTest, TestEmptyFile) {
+  std::string err_msg;
+
+  base::ScopedFILE file_empty(
+      base::OpenFile(base::FilePath(kFileEmptyPath), "r"));
+
+  EXPECT_FALSE(huddly_monitor::LookForErrorBlocking(
+      kTestErrorKey, "", file_empty.get(), &err_msg));
   EXPECT_TRUE(err_msg.empty());
-  err_msg = "";
+}
 
-  EXPECT_FALSE(huddly_monitor::LookForErrorBlocking(kTestErrorKey,
-                                                    file_no_error, &err_msg));
+TEST_F(ToolTest, TestNonMatchingFile) {
+  std::string err_msg;
+
+  base::ScopedFILE file_no_error(
+      base::OpenFile(base::FilePath(kFileNoErrorPath), "r"));
+
+  EXPECT_FALSE(huddly_monitor::LookForErrorBlocking(
+      kTestErrorKey, "", file_no_error.get(), &err_msg));
   EXPECT_TRUE(err_msg.empty());
-  err_msg = "";
+}
 
-  EXPECT_TRUE(huddly_monitor::LookForErrorBlocking(kTestErrorKey,
-                                                   file_with_error, &err_msg));
+TEST_F(ToolTest, TestMatchingFile) {
+  std::string err_msg;
+
+  base::ScopedFILE file_with_error(
+      base::OpenFile(base::FilePath(kFileWithErrorPath), "r"));
+
+  EXPECT_TRUE(huddly_monitor::LookForErrorBlocking(
+      kTestErrorKey, "", file_with_error.get(), &err_msg));
   EXPECT_TRUE(err_msg.empty());
+}
 
-  // Teardown.
-  // No need to fclose file_null_, since it is null.
-  fclose(file_empty);
-  fclose(file_no_error);
-  fclose(file_with_error);
+TEST_F(ToolTest, TestExceptionMatching) {
+  std::string err_msg;
+
+  base::ScopedFILE file_with_error(
+      base::OpenFile(base::FilePath(kFileWithException), "r"));
+
+  EXPECT_FALSE(huddly_monitor::LookForErrorBlocking(
+      kTestErrorKey, kTestErrorException, file_with_error.get(), &err_msg));
+  EXPECT_TRUE(err_msg.empty());
+}
+
+TEST_F(ToolTest, TestExceptionNotMatching) {
+  std::string err_msg;
+
+  base::ScopedFILE file_with_error(
+      base::OpenFile(base::FilePath(kFileWithException), "r"));
+
+  EXPECT_TRUE(huddly_monitor::LookForErrorBlocking(
+      kTestErrorKey, kTestNotPresentException, file_with_error.get(), &err_msg));
+  EXPECT_TRUE(err_msg.empty());
 }
 
 }  // namespace
