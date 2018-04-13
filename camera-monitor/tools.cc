@@ -15,7 +15,9 @@
 
 namespace huddly_monitor {
 
-bool LookForErrorBlocking(std::string error_key, FILE *pipe,
+bool LookForErrorBlocking(const std::string &error_key,
+                          const std::string &error_exception,
+                          FILE *pipe,
                           std::string *err_msg) {
   const uint8_t kBufLength = 100;
   char buffer[kBufLength];
@@ -29,8 +31,10 @@ bool LookForErrorBlocking(std::string error_key, FILE *pipe,
     memset(buffer, 0, kBufLength);
     if (fgets(buffer, kBufLength, pipe) != nullptr)
       logs.append(buffer);
+
     if (logs.rfind(error_key) != std::string::npos) {
-      return true;
+      return error_exception.empty() ||
+             logs.rfind(error_exception) == std::string::npos;
     }
   }
 

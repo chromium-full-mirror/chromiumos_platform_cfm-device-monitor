@@ -13,9 +13,12 @@
 
 namespace huddly_monitor {
 
-// Reads FILE pointed to by file and searches for error_key. Blocks
-// until an error is found or underlying infrastructure failure.
-bool LookForErrorBlocking(std::string error_key, FILE *file,
+// Reads FILE pointed to by file and searches for error_key. Blocks until an
+// error is found or underlying infrastructure failure. If |error_exception| is
+// non-empty then only errors matching |error_key| and not |error_exception| are
+// returned.
+bool LookForErrorBlocking(const std::string& error_key,
+                          const std::string& error_exception, FILE *file,
                           std::string *err_msg);
 
 // Guado specific.
