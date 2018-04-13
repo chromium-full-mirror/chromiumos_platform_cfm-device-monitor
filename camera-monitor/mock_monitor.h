@@ -9,19 +9,31 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
+#include <base/macros.h>
+
 #include "cfm-device-monitor/camera-monitor/abstract_monitor.h"
 
 namespace huddly_monitor {
+
 class MockMonitor : public AbstractMonitor {
  public:
-  bool local_condition;
-  bool vitals_exist_custom;
-  uint64_t local_timestamp;
   MockMonitor(bool init_wait_val, uint32_t sleep_time);
   ~MockMonitor();
+
+ private:
+  // AbstractMonitor
   bool VitalsExist() override;
   bool Respond() override;
+
   void StartMocking();
+
+  // Local copies of state private to AbstractMonitor, representing the mocked
+  // class.
+  bool local_condition;
+  bool vitals_exist_custom = true;
+  uint64_t local_timestamp = 0;
+
+  DISALLOW_COPY_AND_ASSIGN(MockMonitor);
 };
 
 }  // namespace huddly_monitor
