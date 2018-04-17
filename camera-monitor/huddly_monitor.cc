@@ -60,14 +60,7 @@ bool HuddlyMonitor::Respond() {
 
   uint8_t bus_num = libusb_get_bus_number(huddly);
   uint8_t port_num = libusb_get_port_number(huddly);
-  uint32_t gpio_num = GetGpioNum(bus_num, port_num);
-
-  if (!gpio_num) {  // unknown gpio number.
-    LOG(ERROR) << "Failed to get gpio number.";
-    return false;
-  }
-
-  if (!HotplugDeviceAt(gpio_num)) {
+  if (!HotplugDeviceAt(bus_num, port_num)) {
     LOG(WARNING) << "Failed to hotplug.";
     return false;
   }

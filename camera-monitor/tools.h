@@ -22,14 +22,17 @@ bool LookForErrorBlocking(const std::string& error_key,
                           std::string *err_msg);
 
 // Guado specific.
-uint32_t GetGpioNum(uint8_t bus_num, uint8_t port_num);
+uint32_t GetGpioNumGuado(uint8_t bus_num, uint8_t port_num);
+
+// Fizz specific.
+uint8_t GetUsbPortIdFizz(uint8_t bus_num, uint8_t port_num);
 
 // Returns true and saves device pointer to *device.
 // False and *device == nullptr on failure or device not found.
 bool GetDevice(uint16_t vid, uint16_t pid, libusb_device **device,
                std::string *err_msg);
 
-bool HotplugDeviceAt(uint32_t gpio_num);
+bool HotplugDeviceAt(uint8_t bus_num, uint8_t port_num);
 
 }  // namespace huddly_monitor
 
