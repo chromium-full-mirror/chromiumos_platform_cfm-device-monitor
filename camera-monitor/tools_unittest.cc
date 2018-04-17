@@ -22,24 +22,38 @@ class ToolTest : public ::testing::Test {
   // void TearDown() override { }
 };
 
-TEST_F(ToolTest, TestGetGpioNum) {
+TEST_F(ToolTest, TestGetGpioNumGuado) {
   // Values for bus 1.
-  EXPECT_EQ(huddly_monitor::GetGpioNum(1, 2), 218);
-  EXPECT_EQ(huddly_monitor::GetGpioNum(1, 3), 219);
-  EXPECT_EQ(huddly_monitor::GetGpioNum(1, 5), 209);
-  EXPECT_EQ(huddly_monitor::GetGpioNum(1, 6), 209);
+  EXPECT_EQ(huddly_monitor::GetGpioNumGuado(1, 2), 218);
+  EXPECT_EQ(huddly_monitor::GetGpioNumGuado(1, 3), 219);
+  EXPECT_EQ(huddly_monitor::GetGpioNumGuado(1, 5), 209);
+  EXPECT_EQ(huddly_monitor::GetGpioNumGuado(1, 6), 209);
   // Invalid value.
-  EXPECT_EQ(huddly_monitor::GetGpioNum(1, 1), 0);
+  EXPECT_EQ(huddly_monitor::GetGpioNumGuado(1, 1), 0);
 
   // Values for bus 2.
-  EXPECT_EQ(huddly_monitor::GetGpioNum(2, 1), 218);
-  EXPECT_EQ(huddly_monitor::GetGpioNum(2, 2), 219);
-  EXPECT_EQ(huddly_monitor::GetGpioNum(2, 3), 209);
-  EXPECT_EQ(huddly_monitor::GetGpioNum(2, 4), 209);
+  EXPECT_EQ(huddly_monitor::GetGpioNumGuado(2, 1), 218);
+  EXPECT_EQ(huddly_monitor::GetGpioNumGuado(2, 2), 219);
+  EXPECT_EQ(huddly_monitor::GetGpioNumGuado(2, 3), 209);
+  EXPECT_EQ(huddly_monitor::GetGpioNumGuado(2, 4), 209);
 
   // Invalid values.
-  EXPECT_EQ(huddly_monitor::GetGpioNum(2, 5), 0);
-  EXPECT_EQ(huddly_monitor::GetGpioNum(3, 2), 0);
+  EXPECT_EQ(huddly_monitor::GetGpioNumGuado(2, 5), 0);
+  EXPECT_EQ(huddly_monitor::GetGpioNumGuado(3, 2), 0);
+}
+
+TEST_F(ToolTest, TestGetUsbPortIdFizz) {
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 5), 0);
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 6), 1);
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 2), 2);
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 3), 3);
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 4), 4);
+
+  // Invalid values.
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 1), UINT8_MAX);
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 7), UINT8_MAX);
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(0, 5), UINT8_MAX);
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 5), UINT8_MAX);
 }
 
 TEST_F(ToolTest, TestLookForErrorBlockingAll) {

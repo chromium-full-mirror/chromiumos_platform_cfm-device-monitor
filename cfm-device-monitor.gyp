@@ -65,6 +65,14 @@
             'camera-monitor/tools_unittest.cc',
           ],
         },
+        {
+          'target_name': 'camera-hotplug-test',
+          'type': 'executable',
+          'dependencies': ['libcamera-monitor'],
+          'sources': [
+            'camera-monitor/hotplug_test.cc',
+          ],
+        },
       ],
     },],
   ],
