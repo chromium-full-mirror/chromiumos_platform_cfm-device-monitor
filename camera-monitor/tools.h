@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/types.h>
+
 #include <string>
 
 namespace huddly_monitor {
@@ -32,7 +33,11 @@ uint8_t GetUsbPortIdFizz(uint8_t bus_num, uint8_t port_num);
 bool GetDevice(uint16_t vid, uint16_t pid, libusb_device **device,
                std::string *err_msg);
 
-bool HotplugDeviceAt(uint8_t bus_num, uint8_t port_num);
+// TODO(felixe): Restructure the code to put the file reading logic outside the
+// hotplug actuator.
+// Hotplug device using GPIO and while the device is powered off, consume and
+// discard any data on the stream in a non-blocking fashion.
+bool HotplugDeviceAt(uint8_t bus_num, uint8_t port_num, FILE *stream);
 
 }  // namespace huddly_monitor
 

@@ -4,6 +4,9 @@
 
 #include "cfm-device-monitor/camera-monitor/tools.h"
 
+#include <poll.h>
+#include <unistd.h>
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -16,24 +19,55 @@
 
 namespace huddly_monitor {
 
+namespace {
+
+const base::TimeDelta kHotplugSleepTime =
+    base::TimeDelta::FromMilliseconds(200);
+const uint8_t kBufLength = 100;
+
+void ConsumeAndDiscardInput(FILE *stream) {
+  char buffer[kBufLength];
+  int fd = fileno(stream);
+
+  base::TimeTicks start_time = base::TimeTicks::Now();
+  while (base::TimeTicks::Now() - start_time < kHotplugSleepTime) {
+    struct pollfd fds = { fd, POLLIN, 0 };
+
+    if (poll(&fds, 1, 100) && (fds.revents & POLLIN)) {
+      HANDLE_EINTR(read(fd, buffer, kBufLength));
+    }
+  }
+}
+
+}  // namespace
+
 bool LookForErrorBlocking(const std::string &error_key,
                           const std::string &error_exception,
                           FILE *pipe,
                           std::string *err_msg) {
-  const uint8_t kBufLength = 100;
   char buffer[kBufLength];
   std::string logs = "";
   if (!pipe) {
     *err_msg = "Opening pipe failed";
     return false;
   }
+  int fd = fileno(pipe);
 
   while (!feof(pipe)) {
     memset(buffer, 0, kBufLength);
-    if (fgets(buffer, kBufLength, pipe) != nullptr)
+    // Use read so that fetched lines are not buffered. Newlines will not be
+    // handled properly after a match but this should be OK as the rest of the
+    // stream is consumed and discarded when this happens.
+    ssize_t read_result = HANDLE_EINTR(read(fd, buffer, kBufLength));
+
+    if (read_result)
       logs.append(buffer);
+    else
+      break;
 
     if (logs.rfind(error_key) != std::string::npos) {
+      // TODO(felixe): Remove risk of matching |error_key| but not
+      // |error_exception| if read() breaks the line at an unlucky place.
       return error_exception.empty() ||
              logs.rfind(error_exception) == std::string::npos;
     }
@@ -131,9 +165,7 @@ bool GetDevice(uint16_t vid, uint16_t pid, libusb_device **device,
   return *device;
 }
 
-bool HotplugDeviceAt(uint8_t bus_num, uint8_t port_num) {
-  const uint32_t kHotplugSleepTimeMilliseconds = 200;
-
+bool HotplugDeviceAt(uint8_t bus_num, uint8_t port_num, FILE* stream) {
   std::string board = base::SysInfo::GetLsbReleaseBoard();
   if (board == "fizz") {
     // Fizz and its derivatives uses /sys/class/chromeos/cros_ec/usb/vbus_* to
@@ -151,9 +183,9 @@ bool HotplugDeviceAt(uint8_t bus_num, uint8_t port_num) {
       return false;
     }
 
-    // Wait to ensure power cycle.
-    base::PlatformThread::Sleep(
-        base::TimeDelta::FromMilliseconds(kHotplugSleepTimeMilliseconds));
+    // Consume and discard all further input to avoid triggering restarts for
+    // things that happened before the power down.
+    ConsumeAndDiscardInput(stream);
 
     // Bring back power on USB port.
     if (base::WriteFile(enable_path, port_id_string.c_str(),
@@ -190,9 +222,9 @@ bool HotplugDeviceAt(uint8_t bus_num, uint8_t port_num) {
       return false;
     }
 
-    // Wait to ensure power cycle.
-    base::PlatformThread::Sleep(
-        base::TimeDelta::FromMilliseconds(kHotplugSleepTimeMilliseconds));
+    // Consume and discard all further input to avoid triggering restarts for
+    // things that happened before the power down.
+    ConsumeAndDiscardInput(stream);
 
     // Bring back power going to gpio.
     toggle = "1";
