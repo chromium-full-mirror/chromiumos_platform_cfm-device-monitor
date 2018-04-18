@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
+#include <string>
 #include <vector>
 
 #include <base/macros.h>

@@ -67,7 +67,7 @@ bool HuddlyMonitor::Respond() {
     return false;
   }
 
-  if (!HotplugDeviceAt(gpio_num)) {
+  if (!HotplugDeviceAt(gpio_num, klog_pipe_)) {
     LOG(WARNING) << "Failed to hotplug.";
     return false;
   }
