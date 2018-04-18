@@ -60,7 +60,7 @@ bool HuddlyMonitor::Respond() {
 
   uint8_t bus_num = libusb_get_bus_number(huddly);
   uint8_t port_num = libusb_get_port_number(huddly);
-  if (!HotplugDeviceAt(bus_num, port_num)) {
+  if (!HotplugDeviceAt(bus_num, port_num, klog_pipe_)) {
     LOG(WARNING) << "Failed to hotplug.";
     return false;
   }
