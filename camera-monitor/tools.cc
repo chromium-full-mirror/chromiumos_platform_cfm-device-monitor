@@ -52,15 +52,15 @@ bool LookForErrorBlocking(const std::string &error_key,
   }
   int fd = fileno(pipe);
 
-  while (!feof(pipe)) {
+  while (true) {
     memset(buffer, 0, kBufLength);
     // Use read so that fetched lines are not buffered. Newlines will not be
     // handled properly after a match but this should be OK as the rest of the
     // stream is consumed and discarded when this happens.
     ssize_t read_result = HANDLE_EINTR(read(fd, buffer, kBufLength));
 
-    if (read_result)
-      logs.append(buffer);
+    if (read_result > 0)
+      logs.append(buffer, 0, read_result);
     else
       break;
 
