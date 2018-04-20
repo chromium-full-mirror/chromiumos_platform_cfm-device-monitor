@@ -25,6 +25,8 @@ const char kErrorException[] = "uvcvideo: Failed to resubmit video URB";
 
 }  // namespace
 
+// TODO(felixe): Using popen() to get a FILE* here and then using fileno() is
+// not safe. Rewrite this to use base/process/launch.h.
 HuddlyMonitor::HuddlyMonitor(bool init_wait_val, uint32_t sleep_time)
     : AbstractMonitor(init_wait_val, sleep_time),
       klog_pipe_(popen("dmesg -w --level=err", "r")),
