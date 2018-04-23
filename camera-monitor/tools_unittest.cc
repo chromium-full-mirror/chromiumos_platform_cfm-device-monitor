@@ -52,11 +52,19 @@ TEST_F(ToolTest, TestGetUsbPortIdFizz) {
   EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 3), 3);
   EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 4), 4);
 
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 5), 0);
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 6), 1);
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 2), 2);
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 3), 3);
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 4), 4);
+
   // Invalid values.
   EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 1), UINT8_MAX);
   EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 7), UINT8_MAX);
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 1), UINT8_MAX);
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 7), UINT8_MAX);
   EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(0, 5), UINT8_MAX);
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 5), UINT8_MAX);
+  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(3, 5), UINT8_MAX);
 }
 
 TEST_F(ToolTest, TestNullFile) {

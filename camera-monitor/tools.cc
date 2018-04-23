@@ -112,23 +112,24 @@ uint32_t GetGpioNumGuado(uint8_t bus_num, uint8_t port_num) {
 }
 
 uint8_t GetUsbPortIdFizz(uint8_t bus_num, uint8_t port_num) {
-  if (bus_num != 1) {
-    return UINT8_MAX;
+  if (bus_num == 1 || bus_num == 2) {
+    switch (port_num) {
+      case 2:
+        return 2;
+      case 3:
+        return 3;
+      case 4:
+        return 4;
+      case 5:
+        return 0;
+      case 6:
+        return 1;
+      default:
+        return UINT8_MAX;
+    }
   }
-  switch (port_num) {
-    case 2:
-      return 2;
-    case 3:
-      return 3;
-    case 4:
-      return 4;
-    case 5:
-      return 0;
-    case 6:
-      return 1;
-    default:
-      return UINT8_MAX;
-  }
+
+  return UINT8_MAX;
 }
 
 bool GetDevice(uint16_t vid, uint16_t pid, libusb_device **device,
