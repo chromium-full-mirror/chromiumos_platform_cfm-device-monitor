@@ -19,7 +19,8 @@ namespace huddly_monitor {
 // non-empty then only errors matching |error_key| and not |error_exception| are
 // returned.
 bool LookForErrorBlocking(const std::string& error_key,
-                          const std::string& error_exception, FILE *file,
+                          const std::string& error_exception,
+                          FILE *file,
                           std::string *err_msg);
 
 // Guado specific.
@@ -30,7 +31,8 @@ uint8_t GetUsbPortIdFizz(uint8_t bus_num, uint8_t port_num);
 
 // Returns true and saves device pointer to *device.
 // False and *device == nullptr on failure or device not found.
-bool GetDevice(uint16_t vid, uint16_t pid, libusb_device **device,
+bool GetDevice(uint16_t vid, uint16_t pid,
+               libusb_device **device,
                std::string *err_msg);
 
 // TODO(felixe): Restructure the code to put the file reading logic outside the

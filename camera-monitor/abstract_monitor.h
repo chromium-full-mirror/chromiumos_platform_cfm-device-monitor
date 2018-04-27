@@ -19,7 +19,7 @@ namespace huddly_monitor {
 class AbstractMonitor {
  public:
   AbstractMonitor(bool init_wait_val, uint32_t sleep_time);
-  ~AbstractMonitor();
+  virtual ~AbstractMonitor();
 
   // Interface used by implementing classes to update monitoring condition.
   // Pause monitoring when !user_defined_cond, continue otherwise.

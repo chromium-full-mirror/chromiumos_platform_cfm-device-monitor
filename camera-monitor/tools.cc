@@ -163,7 +163,7 @@ bool GetDevice(uint16_t vid, uint16_t pid, libusb_device **device,
 
   libusb_free_device_list(device_list, 1);
 
-  return *device;
+  return *device != nullptr;
 }
 
 bool HotplugDeviceAt(uint8_t bus_num, uint8_t port_num, FILE* stream) {

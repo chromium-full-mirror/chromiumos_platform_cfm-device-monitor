@@ -21,9 +21,12 @@
 namespace huddly_monitor {
 
 AbstractMonitor::AbstractMonitor(bool init_wait_val, uint32_t sleep_time)
-    : monitor_lock_(), wait_condition_(&monitor_lock_),
+    : monitor_lock_(),
+      wait_condition_(&monitor_lock_),
       monitor_thread_(new base::Thread("monitor_thread")),
-      condition_(init_wait_val), terminate_(false), timestamp_(0),
+      condition_(init_wait_val),
+      terminate_(false),
+      timestamp_(0),
       sleep_time_milliseconds_(sleep_time) {}
 
 AbstractMonitor::~AbstractMonitor() { DestroyMonitor(); }
