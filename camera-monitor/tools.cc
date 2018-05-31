@@ -14,6 +14,7 @@
 
 #include "base/files/file_util.h"
 #include "base/logging.h"
+#include "base/strings/string_util.h"
 #include "base/sys_info.h"
 #include "base/threading/platform_thread.h"
 
@@ -168,7 +169,7 @@ bool GetDevice(uint16_t vid, uint16_t pid, libusb_device **device,
 
 bool HotplugDeviceAt(uint8_t bus_num, uint8_t port_num, FILE* stream) {
   std::string board = base::SysInfo::GetLsbReleaseBoard();
-  if (board == "fizz") {
+  if (base::StartsWith(board, "fizz", base::CompareCase::SENSITIVE)) {
     // Fizz and its derivatives uses /sys/class/chromeos/cros_ec/usb/vbus_* to
     // control VBUS power to the USB ports.
     uint8_t port_id = GetUsbPortIdFizz(bus_num, port_num);
@@ -196,7 +197,7 @@ bool HotplugDeviceAt(uint8_t bus_num, uint8_t port_num, FILE* stream) {
     }
 
     return true;
-  } else if (board == "guado") {
+  } else if (base::StartsWith(board, "guado", base::CompareCase::SENSITIVE)) {
     // Guado uses /sys/class/gpio/* to control VBUS power to the USB ports.
     uint32_t gpio_num = GetGpioNumGuado(bus_num, port_num);
     if (!gpio_num) {  // unknown gpio number.
@@ -236,7 +237,7 @@ bool HotplugDeviceAt(uint8_t bus_num, uint8_t port_num, FILE* stream) {
 
     return true;
   } else {
-    LOG(ERROR) << "Tried to hotplug a device on an unknown board.";
+    LOG(ERROR) << "Tried to hotplug a device on an unknown board: " << board;
     return false;
   }
 }
