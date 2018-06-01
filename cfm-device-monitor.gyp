@@ -11,6 +11,10 @@
         'libusb-1.0',
       ],
     },
+    'include_dirs': [
+      # We assume the cwd is named "cfm-device-monitor" for #include paths.
+      '..',
+    ],
   },
   'targets': [
     {
