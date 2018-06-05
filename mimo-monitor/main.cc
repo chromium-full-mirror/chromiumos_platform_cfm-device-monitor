@@ -15,23 +15,11 @@
 
 #include "cfm-device-monitor/mimo-monitor/mimo_monitor.h"
 
-namespace {
-const char kPidFilePath[] = "/tmp/mimo-monitor.pid";
-}
-
 int main(int argc, char *argv[]) {
   // Configure logging to syslog.
   brillo::InitLog(brillo::kLogToSyslog | brillo::kLogToStderrIfTty);
 
   VLOG(1) << "Mimo-monitor start...";
-
-  // If the file opening fails, the lock will also fail. So omit check here.
-  int pid_file = open(kPidFilePath, O_CREAT | O_RDWR, 0666);
-  int lock_result = flock(pid_file, LOCK_EX | LOCK_NB);
-  if (lock_result && errno == EWOULDBLOCK) {
-    VLOG(1) << "Another mimo-monitor is running. Exiting...";
-    return 0;
-  }
 
   std::unique_ptr<mimo_monitor::MimoMonitor> monitord =
       mimo_monitor::MimoMonitor::Create();
