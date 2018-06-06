@@ -58,6 +58,16 @@
         'mimo-monitor/main.cc',
       ],
     },
+    {
+      'target_name': 'apex-monitor',
+      'type': 'executable',
+      'sources': [
+        'apex-monitor/apex_manager.cc',
+        'apex-monitor/apex_monitor.cc',
+        'apex-monitor/i2c_interface.cc',
+        'apex-monitor/main.cc',
+      ],
+    },
   ],
   'conditions': [
     ['USE_test == 1', {
@@ -79,6 +89,34 @@
             'camera-monitor/hotplug_test.cc',
           ],
         },
+	{
+          'target_name': 'apex-manager-test',
+          'type': 'executable',
+          'includes': ['../../platform2/common-mk/common_test.gypi'],
+          'sources': [
+            'apex-monitor/apex_manager.cc',
+            'apex-monitor/apex_manager_test.cc',
+            'apex-monitor/fake_i2c_interface.cc',
+          ],
+	},
+	{
+          'target_name': 'apex-monitor-test',
+          'type': 'executable',
+          'includes': ['../../platform2/common-mk/common_test.gypi'],
+          'variables': {
+            'deps': [
+              'libbrillo-test-<(libbase_ver)',
+              'libchrome-test-<(libbase_ver)',
+              'libcros_config',
+            ],
+          },
+          'sources': [
+            'apex-monitor/apex_manager.cc',
+            'apex-monitor/apex_monitor.cc',
+            'apex-monitor/apex_monitor_test.cc',
+            'apex-monitor/fake_i2c_interface.cc',
+          ],
+	},
       ],
     },],
   ],
