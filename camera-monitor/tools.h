@@ -17,6 +17,7 @@ namespace huddly_monitor {
 constexpr uint16_t kHuddlyVid = 0x2bd9;
 constexpr uint16_t kHuddlyPid = 0x0011;
 
+void ConsumeAndDiscardInput(FILE *stream);
 
 // Reads FILE pointed to by file and searches for error_key. Blocks until an
 // error is found or underlying infrastructure failure. If |error_exception| is
@@ -30,9 +31,6 @@ bool LookForErrorBlocking(const std::string& error_key,
 // Guado specific.
 uint32_t GetGpioNumGuado(uint8_t bus_num, uint8_t port_num);
 
-// Fizz specific.
-uint8_t GetUsbPortIdFizz(uint8_t bus_num, uint8_t port_num);
-
 // Returns true and saves device pointer to *device.
 // False and *device == nullptr on failure or device not found.
 bool GetDevice(uint16_t vid, uint16_t pid,
@@ -43,7 +41,7 @@ bool GetDevice(uint16_t vid, uint16_t pid,
 // hotplug actuator.
 // Hotplug device using GPIO and while the device is powered off, consume and
 // discard any data on the stream in a non-blocking fashion.
-bool HotplugDeviceAt(uint8_t bus_num, uint8_t port_num, FILE *stream);
+bool HotplugDeviceGuado(uint16_t vid, uint16_t pid, FILE *stream);
 
 }  // namespace huddly_monitor
 

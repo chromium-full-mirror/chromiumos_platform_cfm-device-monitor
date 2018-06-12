@@ -18,7 +18,8 @@ namespace {
 const char kFileEmptyPath[] = "camera-monitor/example/file_empty.txt";
 const char kFileNoErrorPath[] = "camera-monitor/example/file_no_error.txt";
 const char kFileWithErrorPath[] = "camera-monitor/example/file_with_error.txt";
-const char kFileWithException[] = "camera-monitor/example/file_with_exception.txt";
+const char kFileWithException[] =
+    "camera-monitor/example/file_with_exception.txt";
 const char kTestErrorKey[] = "TOOLS_UNITTEST_ERROR";
 const char kTestErrorException[] = "TOOLS_UNITTEST_ERROR EXCEPT";
 const char kTestNotPresentException[] = "TOOLS_UNITTEST_ERROR foo";
@@ -43,28 +44,6 @@ TEST_F(ToolTest, TestGetGpioNumGuado) {
   // Invalid values.
   EXPECT_EQ(huddly_monitor::GetGpioNumGuado(2, 5), 0);
   EXPECT_EQ(huddly_monitor::GetGpioNumGuado(3, 2), 0);
-}
-
-TEST_F(ToolTest, TestGetUsbPortIdFizz) {
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 5), 0);
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 6), 1);
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 2), 2);
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 3), 3);
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 4), 4);
-
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 5), 0);
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 6), 1);
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 2), 2);
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 3), 3);
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 4), 4);
-
-  // Invalid values.
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 1), UINT8_MAX);
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(1, 7), UINT8_MAX);
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 1), UINT8_MAX);
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(2, 7), UINT8_MAX);
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(0, 5), UINT8_MAX);
-  EXPECT_EQ(huddly_monitor::GetUsbPortIdFizz(3, 5), UINT8_MAX);
 }
 
 TEST_F(ToolTest, TestNullFile) {
@@ -128,7 +107,8 @@ TEST_F(ToolTest, TestExceptionNotMatching) {
       base::OpenFile(base::FilePath(kFileWithException), "r"));
 
   EXPECT_TRUE(huddly_monitor::LookForErrorBlocking(
-      kTestErrorKey, kTestNotPresentException, file_with_error.get(), &err_msg));
+      kTestErrorKey, kTestNotPresentException, file_with_error.get(),
+      &err_msg));
   EXPECT_TRUE(err_msg.empty());
 }
 

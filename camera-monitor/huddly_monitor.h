@@ -11,10 +11,13 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
+#include <base/macros.h>
+#include <base/time/time.h>
+#include <dbus/bus.h>
+#include <dbus/object_proxy.h>
+
 #include <string>
 #include <vector>
-
-#include <base/macros.h>
 
 #include "cfm-device-monitor/camera-monitor/abstract_monitor.h"
 
@@ -29,9 +32,14 @@ class HuddlyMonitor : public AbstractMonitor {
   bool Respond() override;
 
  private:
+  bool InitDBus();
+  bool PowerCycleUsbPort(uint16_t vid, uint16_t pid, base::TimeDelta delay);
+
   FILE *klog_pipe_;
   const std::string error_matcher_;
   const std::string error_exception_;
+  scoped_refptr<dbus::Bus> bus_ = nullptr;
+  dbus::ObjectProxy* permission_broker_proxy_ = nullptr;
 
   DISALLOW_COPY_AND_ASSIGN(HuddlyMonitor);
 };
