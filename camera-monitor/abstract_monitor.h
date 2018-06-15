@@ -23,8 +23,7 @@ class AbstractMonitor {
 
   // Interface used by implementing classes to update monitoring condition.
   // Pause monitoring when !user_defined_cond, continue otherwise.
-  // Return false on timestamp <= latest_update_timestamp.
-  bool UpdateCondition(bool user_defined_cond, uint64_t timestamp);
+  void UpdateCondition(bool user_defined_cond);
 
   // Must be called by user after all initialization is done.
   bool StartMonitor();
@@ -33,9 +32,8 @@ class AbstractMonitor {
   base::Lock monitor_lock_;
   base::ConditionVariable wait_condition_;
   base::Thread *monitor_thread_;
-  bool condition_;      // Shared resource.
-  bool terminate_;      // Shared resource.
-  uint64_t timestamp_;  // Shared resource.
+  bool condition_;  // Shared resource.
+  bool terminate_;  // Shared resource.
   uint32_t sleep_time_milliseconds_;
 
   void MonitorThread();

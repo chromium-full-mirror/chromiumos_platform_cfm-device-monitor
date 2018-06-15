@@ -7,73 +7,49 @@
 #include <cstdlib>
 #include <string>
 
+#include "base/bind.h"
 #include "base/logging.h"
+#include "brillo/daemons/daemon.h"
 #include "brillo/syslog_logging.h"
-#include "brillo/daemons/dbus_daemon.h"
 #include "cfm-device-monitor/camera-monitor/huddly_monitor.h"
-#include "cfm-device-monitor/camera-monitor/huddly_monitor_adaptor.h"
+#include "cfm-device-monitor/camera-monitor/udev.h"
 
-namespace huddly_monitor {
-
-const char kHuddlyServicePath[] = "/org/chromium/huddlymonitor";
-const char kHuddlyServiceName[] = "org.chromium.huddlymonitor";
-
-}  // namespace huddly_monitor
-
-class DBusAdaptor : public org::chromium::huddlymonitorInterface,
-                    public org::chromium::huddlymonitorAdaptor {
+class HuddlyDaemon : public brillo::Daemon {
  public:
-  explicit DBusAdaptor(scoped_refptr<dbus::Bus> bus)
-      : org::chromium::huddlymonitorAdaptor(this),
-        dbus_object_(nullptr, bus,
-                     dbus::ObjectPath(huddly_monitor::kHuddlyServicePath)),
-        monitor_object_(false, 500) {
+  HuddlyDaemon() : monitor_object_(false, 500) {
     monitor_object_.StartMonitor();
   }
 
-  void RegisterAsync(
-      const brillo::dbus_utils::AsyncEventSequencer::CompletionAction &cb) {
-    RegisterWithDBusObject(&dbus_object_);
-    dbus_object_.RegisterAsync(cb);
-  }
+ protected:
+  int OnEventLoopStarted() override {
+    udev_ = std::make_unique<huddly_monitor::Udev>(
+        base::Bind(&HuddlyDaemon::OnCameraAdded, weak_factory_.GetWeakPtr()),
+        base::Bind(&HuddlyDaemon::OnCameraRemoved, weak_factory_.GetWeakPtr()));
 
-  bool UpdateCondition(brillo::ErrorPtr *error, bool in_condition,
-                       uint64_t in_timestamp) override {
-    bool update_made =
-        monitor_object_.UpdateCondition(in_condition, in_timestamp);
-    if (!update_made) {
-      LOG(INFO) << "Duplicate update seen. Dropping.";
+    if (udev_->IsCameraConnected()) {
+      OnCameraAdded();
     }
-    return true;
+
+    return brillo::Daemon::OnEventLoopStarted();
   }
 
  private:
-  brillo::dbus_utils::DBusObject dbus_object_;
+  void OnCameraAdded() { monitor_object_.UpdateCondition(true); }
+
+  void OnCameraRemoved() { monitor_object_.UpdateCondition(false); }
+
   huddly_monitor::HuddlyMonitor monitor_object_;
 
-  DISALLOW_COPY_AND_ASSIGN(DBusAdaptor);
-};
+  // Udev object used to communicate with libudev.
+  std::unique_ptr<huddly_monitor::Udev> udev_;
 
-class HuddlyDaemon : public brillo::DBusServiceDaemon {
- public:
-  HuddlyDaemon() : DBusServiceDaemon(huddly_monitor::kHuddlyServiceName) {}
-
- protected:
-  void RegisterDBusObjectsAsync(
-      brillo::dbus_utils::AsyncEventSequencer *sequencer) override {
-    adaptor_.reset(new DBusAdaptor(bus_));
-    adaptor_->RegisterAsync(
-        sequencer->GetHandler("RegisterAsync() failed", true));
-  }
-
- private:
-  std::unique_ptr<DBusAdaptor> adaptor_;
+  base::WeakPtrFactory<HuddlyDaemon> weak_factory_{this};
 
   DISALLOW_COPY_AND_ASSIGN(HuddlyDaemon);
 };
 
 int main(int argc, char *argv[]) {
-  brillo::InitLog(brillo::InitFlags::kLogToSyslog);
+  brillo::InitLog(brillo::kLogToSyslog | brillo::kLogToStderrIfTty);
   logging::LoggingSettings logging_settings;
   logging::InitLogging(logging_settings);
 

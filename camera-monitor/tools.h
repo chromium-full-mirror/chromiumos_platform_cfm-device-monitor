@@ -14,6 +14,10 @@
 
 namespace huddly_monitor {
 
+constexpr uint16_t kHuddlyVid = 0x2bd9;
+constexpr uint16_t kHuddlyPid = 0x0011;
+
+
 // Reads FILE pointed to by file and searches for error_key. Blocks until an
 // error is found or underlying infrastructure failure. If |error_exception| is
 // non-empty then only errors matching |error_key| and not |error_exception| are

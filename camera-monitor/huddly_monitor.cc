@@ -8,17 +8,14 @@
 #include <sstream>
 #include <string>
 
-#include <base/logging.h>
-#include <base/threading/platform_thread.h>
+#include "base/logging.h"
+#include "base/threading/platform_thread.h"
 
 #include "cfm-device-monitor/camera-monitor/tools.h"
 
 namespace huddly_monitor {
 
 namespace {
-
-constexpr uint16_t kHuddlyVid = 0x2bd9;
-constexpr uint16_t kHuddlyPid = 0x0011;
 
 const char kError[] = "uvcvideo: Failed";
 const char kErrorException[] = "uvcvideo: Failed to resubmit video URB";

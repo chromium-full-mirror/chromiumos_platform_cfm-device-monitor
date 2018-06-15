@@ -8,6 +8,7 @@
       'deps': [
         'libbrillo-<(libbase_ver)',
         'libchrome-<(libbase_ver)',
+        'libudev',
         'libusb-1.0',
       ],
     },
@@ -24,6 +25,7 @@
         'camera-monitor/abstract_monitor.cc',
         'camera-monitor/huddly_monitor.cc',
         'camera-monitor/tools.cc',
+        'camera-monitor/udev.cc',
       ],
     },
     {

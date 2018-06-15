@@ -4,13 +4,13 @@
 
 #include "cfm-device-monitor/camera-monitor/abstract_monitor.h"
 
-#include <sys/mman.h>
-#include <unistd.h>
 #include <assert.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <sys/mman.h>
+#include <unistd.h>
 #include <string>
 
 #include "base/bind.h"
@@ -26,29 +26,18 @@ AbstractMonitor::AbstractMonitor(bool init_wait_val, uint32_t sleep_time)
       monitor_thread_(new base::Thread("monitor_thread")),
       condition_(init_wait_val),
       terminate_(false),
-      timestamp_(0),
       sleep_time_milliseconds_(sleep_time) {}
 
 AbstractMonitor::~AbstractMonitor() { DestroyMonitor(); }
 
-bool AbstractMonitor::UpdateCondition(bool user_defined_cond,
-                                      uint64_t updated_timestamp) {
+void AbstractMonitor::UpdateCondition(bool user_defined_cond) {
   monitor_lock_.Acquire();
-
-  // Already saw this update.
-  if (updated_timestamp <= timestamp_) {
-    monitor_lock_.Release();
-    return false;
-  }
-
-  timestamp_ = updated_timestamp;
 
   if ((condition_ = user_defined_cond)) {
     wait_condition_.Signal();
   }
 
   monitor_lock_.Release();
-  return true;
 }
 
 bool AbstractMonitor::StartMonitor() {
