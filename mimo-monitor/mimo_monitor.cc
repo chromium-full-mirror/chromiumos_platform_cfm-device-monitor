@@ -116,7 +116,7 @@ void MimoMonitor::FindMimo() {
   switch (device_cnt) {
     case 0: {
       // Nothing found.
-      LOG(WARNING) << "Didn't find Displaylink or SiSMonitor";
+      VLOG(1) << "Didn't find Displaylink or SiSMonitor";
       break;
     }
     case 1: {
