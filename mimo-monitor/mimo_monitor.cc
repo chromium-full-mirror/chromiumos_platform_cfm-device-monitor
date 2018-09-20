@@ -163,6 +163,7 @@ void MimoMonitor::TaskScheduler() {
 
   // Both touch and display fail.
   if (!dl_monitor.DisplayStatus() && !sis_monitor.TouchStatus()) {
+    // Please see b/109866345 before modyfing the below line.
     LOG(WARNING) << "Both touch and display are down. Resetting Mimo.";
     ResetDevice(libusb_get_parent(display_device_));
     mimo_found_ = false;
@@ -175,6 +176,7 @@ void MimoMonitor::TaskScheduler() {
 
   // Touch fails.
   if (!sis_monitor.TouchStatus()) {
+    // Please see b/109866345 before modyfing the below line.
     LOG(WARNING) << "Trying to reset touch panel.";
     mimo_found_ = false;
     sis_monitor.ResetSiS(touch_device_, kTouchInterface);
@@ -187,6 +189,7 @@ void MimoMonitor::TaskScheduler() {
 
   // Display fails.
   if (!dl_monitor.DisplayStatus()) {
+    // Please see b/109866345 before modyfing the below line.
     LOG(WARNING) << "Trying to reset display.";
     mimo_found_ = false;
     ResetDevice(display_device_);

@@ -113,6 +113,7 @@ bool HuddlyMonitor::Respond() {
   }
 
   if (result) {
+    // Please see b/109866345 before modyfing the below line.
     LOG(WARNING) << "Detected crashed camera. Rebooted.";
     const uint32_t kRebootSleepTimeSeconds = 30;
     base::PlatformThread::Sleep(

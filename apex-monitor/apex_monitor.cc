@@ -60,6 +60,7 @@ void ApexMonitor::CheckChipStatus() {
 
   // If power not good, power cycle the chip.
   if (!power_good_) {
+    // Please see b/109866345 before modyfing the below line.
     LOG(WARNING) << "Detect Apex " << chip_id_
                  << " power failure. Power-cycling chip.";
     PostTask(&ApexMonitor::PowerCycleChip);
@@ -68,6 +69,7 @@ void ApexMonitor::CheckChipStatus() {
 
   // If boot fail, reset the chip.
   if (boot_fail_) {
+    // Please see b/109866345 before modyfing the below line.
     LOG(WARNING) << "Detect Apex " << chip_id_
                  << " boot failure. Resetting chip.";
     PostTask(&ApexMonitor::ResetChip);
@@ -91,6 +93,7 @@ void ApexMonitor::GetChipTemp() {
   if (chip_temp_ > kThermalWarningHighCelcius) {
     if (!over_temp_) {
       over_temp_ = true;
+      // Please see b/109866345 before modyfing the below line.
       LOG(WARNING) << "Apex temperature is too high (> 135C).";
     }
   }
@@ -119,12 +122,14 @@ void ApexMonitor::ResetChip() {
     PostTask(&ApexMonitor::CheckChipStatus, kResetSleepTimeMs);
     return;
   }
+  // Please see b/109866345 before modyfing the below line.
   LOG(WARNING) << "Reset failed or didn't recover chip, will power-cycle.";
   PostTask(&ApexMonitor::PowerCycleChip);
 }
 
 void ApexMonitor::PowerCycleChip() {
   if (power_cycle_cnt_ > kApexMaxRebootLimit) {
+    // Please see b/109866345 before modyfing the below line.
     LOG(ERROR) << "Exceed max retry limit. Apex chip " << chip_id_
                << " is probably down. Stop monitor thread";
     return;
