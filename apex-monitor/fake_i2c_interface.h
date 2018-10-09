@@ -22,7 +22,7 @@ namespace apex_monitor {
 
 class FakeI2cInterface : public BaseI2cInterface {
  public:
-  FakeI2cInterface(FakeRegisters* fake_registers);
+  explicit FakeI2cInterface(FakeRegisters* fake_registers);
   ~FakeI2cInterface();
 
   static std::unique_ptr<FakeI2cInterface> Create(
@@ -45,8 +45,6 @@ class FakeI2cInterface : public BaseI2cInterface {
                 const uint8_t& page_number = kPageNumberNone) override;
 
  private:
-  int chip_id_;
-
   DISALLOW_COPY_AND_ASSIGN(FakeI2cInterface);
 };
 
