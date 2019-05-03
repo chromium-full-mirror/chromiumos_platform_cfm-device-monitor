@@ -41,7 +41,11 @@ MimoMonitor::MimoMonitor(libusb_context* ctx) : ctx_(ctx), weak_factory_(this) {
   touch_device_ = nullptr;
   mimo_found_ = false;
 
+#if defined(LIBUSB_API_VERSION) && (LIBUSB_API_VERSION >= 0x01000106)
+  libusb_set_option(ctx_, LIBUSB_OPTION_LOG_LEVEL, 3);
+#else
   libusb_set_debug(ctx_, 3);
+#endif
 }
 
 MimoMonitor::~MimoMonitor() {
