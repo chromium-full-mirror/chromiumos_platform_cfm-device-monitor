@@ -1,0 +1,139 @@
+# Copyright 2019 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//common-mk/pkg_config.gni")
+
+group("all") {
+  deps = [
+    ":apex-monitor",
+    ":huddly-monitor",
+    ":libcamera-monitor",
+    ":libmimo-monitor",
+    ":mimo-monitor",
+  ]
+  if (use.test) {
+    deps += [
+      ":apex-manager-test",
+      ":apex-monitor-test",
+      ":camera-hotplug-test",
+      ":camera-monitor-test",
+    ]
+  }
+}
+
+pkg_config("target_defaults") {
+  include_dirs = [ ".." ]
+
+  pkg_deps = [
+    "libbrillo-${libbase_ver}",
+    "libchrome-${libbase_ver}",
+    "libudev",
+    "libusb-1.0",
+  ]
+}
+
+static_library("libcamera-monitor") {
+  sources = [
+    "camera-monitor/abstract_monitor.cc",
+    "camera-monitor/huddly_monitor.cc",
+    "camera-monitor/tools.cc",
+    "camera-monitor/udev.cc",
+  ]
+  configs += [ ":target_defaults" ]
+}
+
+executable("huddly-monitor") {
+  sources = [
+    "camera-monitor/main.cc",
+  ]
+  configs += [ ":target_defaults" ]
+  deps = [
+    ":libcamera-monitor",
+  ]
+}
+
+static_library("libmimo-monitor") {
+  sources = [
+    "mimo-monitor/displaylink_monitor.cc",
+    "mimo-monitor/mimo_monitor.cc",
+    "mimo-monitor/sis_monitor.cc",
+    "mimo-monitor/utils.cc",
+  ]
+  configs += [ ":target_defaults" ]
+}
+
+executable("mimo-monitor") {
+  sources = [
+    "mimo-monitor/main.cc",
+  ]
+  configs += [ ":target_defaults" ]
+  deps = [
+    ":libmimo-monitor",
+  ]
+}
+
+executable("apex-monitor") {
+  sources = [
+    "apex-monitor/apex_manager.cc",
+    "apex-monitor/apex_monitor.cc",
+    "apex-monitor/i2c_interface.cc",
+    "apex-monitor/main.cc",
+  ]
+  configs += [ ":target_defaults" ]
+}
+
+if (use.test) {
+  executable("camera-monitor-test") {
+    sources = [
+      "camera-monitor/tools_unittest.cc",
+    ]
+    configs += [
+      "//common-mk:test",
+      ":target_defaults",
+    ]
+    deps = [
+      ":libcamera-monitor",
+    ]
+  }
+
+  executable("camera-hotplug-test") {
+    sources = [
+      "camera-monitor/hotplug_test.cc",
+    ]
+    configs += [ ":target_defaults" ]
+    deps = [
+      ":libcamera-monitor",
+    ]
+  }
+
+  executable("apex-manager-test") {
+    sources = [
+      "apex-monitor/apex_manager.cc",
+      "apex-monitor/apex_manager_test.cc",
+      "apex-monitor/fake_i2c_interface.cc",
+    ]
+    configs += [
+      "//common-mk:test",
+      ":target_defaults",
+    ]
+  }
+
+  executable("apex-monitor-test") {
+    sources = [
+      "apex-monitor/apex_manager.cc",
+      "apex-monitor/apex_monitor.cc",
+      "apex-monitor/apex_monitor_test.cc",
+      "apex-monitor/fake_i2c_interface.cc",
+    ]
+    configs += [
+      "//common-mk:test",
+      ":target_defaults",
+    ]
+    pkg_deps = [
+      "libbrillo-test-${libbase_ver}",
+      "libchrome-test-${libbase_ver}",
+      "libcros_config",
+    ]
+  }
+}
