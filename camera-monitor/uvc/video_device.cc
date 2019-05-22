@@ -1,0 +1,138 @@
+// Copyright 2019 The Chromium OS Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#include "cfm-device-monitor/camera-monitor/uvc/video_device.h"
+
+#include <base/files/file.h>
+#include <base/logging.h>
+#include <base/posix/eintr_wrapper.h>
+#include <fcntl.h>
+#include <linux/usb/video.h>
+#include <linux/uvcvideo.h>
+#include <linux/videodev2.h>
+#include <string.h>
+#include <sys/ioctl.h>
+
+#include <algorithm>
+
+#include "cfm-device-monitor/camera-monitor/uvc/utilities.h"
+
+namespace cfm {
+namespace uvc {
+
+namespace {
+const char kDefaultVideoDeviceMountPoint[] = "/sys/class/video4linux";
+const char kDefaultVideoDevicePoint[] = "device/..";
+}  // namespace
+
+VideoDevice::VideoDevice(uint16_t vendor_id, uint16_t product_id)
+    : vendor_id_(vendor_id),
+      product_id_(product_id),
+      unit_id_(-1),
+      file_descriptor_(-1) {}
+
+VideoDevice::~VideoDevice() {
+  if (IsValid()) {
+    CloseDevice();
+  }
+}
+
+bool VideoDevice::IsValid() {
+  return file_.IsValid();
+}
+
+bool VideoDevice::OpenDevice() {
+  std::vector<base::FilePath> dev_paths;
+  if (!FindDevices(kDefaultVideoDeviceMountPoint, kDefaultVideoDevicePoint,
+                   vendor_id_, product_id_, &dev_paths)) {
+    LOG(ERROR) << "Failed to find devices";
+    return false;
+  }
+  if (dev_paths.empty()) {
+    LOG(ERROR) << "No device path found.";
+    return false;
+  }
+  base::FilePath dev_path = dev_paths.at(0);
+  int fd = open(dev_path.value().c_str(), O_RDWR | O_NONBLOCK, 0);
+  if (fd == -1) {
+    LOG(ERROR) << "Failed to open device. Open file failed.";
+    return false;
+  }
+
+  file_ = base::File(dev_path, base::File::FLAG_OPEN | base::File::FLAG_READ);
+  file_descriptor_ = fd;
+  return true;
+}
+
+void VideoDevice::CloseDevice() {
+  if (file_descriptor_ >= 0) {
+    close(file_descriptor_);
+  }
+  file_.Close();
+  file_descriptor_ = -1;
+}
+
+bool VideoDevice::QueryXuControl(unsigned char control_selector,
+                                 uint8_t* data,
+                                 uint8_t query_request,
+                                 uint16_t size) {
+  if (!file_.IsValid()) {
+    return false;
+  }
+
+  if (unit_id_ < 0) {
+    return false;
+  }
+
+  struct uvc_xu_control_query control_query;
+  control_query.unit = unit_id_;
+  control_query.selector = control_selector;
+  control_query.query = query_request;
+  control_query.size = size;
+  control_query.data = data;
+  int error =
+      HANDLE_EINTR(ioctl(file_descriptor_, UVCIOC_CTRL_QUERY, &control_query));
+
+  if (error < 0) {
+    return false;
+  }
+  return true;
+}
+
+uint16_t VideoDevice::GetXuControlLength(unsigned char control_selector) {
+  uint16_t data_len;
+  if (QueryXuControl(control_selector, reinterpret_cast<uint8_t*>(&data_len),
+                     UVC_GET_LEN, sizeof(data_len)) < 0) {
+    return -1;
+  }
+  return data_len;
+}
+
+bool VideoDevice::GetXuControl(unsigned char control_selector,
+                               std::vector<unsigned char>* data) {
+  uint16_t data_len = GetXuControlLength(control_selector);
+  if (data_len < 0) {
+    return false;
+  }
+  data->resize(data_len);
+  int error =
+      QueryXuControl(control_selector, data->data(), UVC_GET_CUR, data_len);
+  if (error < 0) {
+    return false;
+  }
+  return true;
+}
+
+bool VideoDevice::SetXuControl(unsigned char control_selector,
+                               std::vector<unsigned char> data) {
+  int error =
+      QueryXuControl(control_selector, data.data(), UVC_SET_CUR, data.size());
+  if (error < 0) {
+    return false;
+  }
+  return true;
+}
+
+}  // namespace uvc
+}  // namespace cfm

@@ -33,6 +33,14 @@ pkg_config("target_defaults") {
   ]
 }
 
+static_library("uvc-video-device") {
+  sources = [
+    "camera-monitor/uvc/utilities.cc",
+    "camera-monitor/uvc/video_device.cc",
+  ]
+  configs += [ ":target_defaults" ]
+}
+
 static_library("libcamera-monitor") {
   sources = [
     "camera-monitor/abstract_monitor.cc",
@@ -50,6 +58,7 @@ executable("huddly-monitor") {
   configs += [ ":target_defaults" ]
   deps = [
     ":libcamera-monitor",
+    ":uvc-video-device",
   ]
 }
 
