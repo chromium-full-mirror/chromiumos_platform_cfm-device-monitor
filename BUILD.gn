@@ -35,6 +35,7 @@ pkg_config("target_defaults") {
 
 static_library("uvc-video-device") {
   sources = [
+    "camera-monitor/uvc/huddly_go_device.cc",
     "camera-monitor/uvc/utilities.cc",
     "camera-monitor/uvc/video_device.cc",
   ]
