@@ -96,7 +96,7 @@ executable("apex-monitor") {
 if (use.test) {
   executable("camera-monitor-test") {
     sources = [
-      "camera-monitor/tools_unittest.cc",
+      "camera-monitor/tools_test.cc",
     ]
     configs += [
       "//common-mk:test",
