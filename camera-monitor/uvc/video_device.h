@@ -7,6 +7,7 @@
 
 #include <base/files/file.h>
 #include <base/macros.h>
+#include <base/optional.h>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -19,9 +20,11 @@ class VideoDevice {
   VideoDevice(uint16_t vendor_id, uint16_t product_id);
   virtual ~VideoDevice();
 
-  uint8_t GetUnitId() { return unit_id_; }
+  base::Optional<uint8_t> GetUnitId() { return unit_id_; }
 
-  void SetUnitId(uint8_t unit_id) { unit_id_ = unit_id; }
+  void SetUnitId(uint8_t unit_id) {
+    unit_id_ = base::Optional<uint8_t>(unit_id);
+  }
 
   virtual bool IsValid();
 
@@ -33,7 +36,8 @@ class VideoDevice {
                               uint8_t query_request,
                               uint16_t size);
 
-  virtual uint16_t GetXuControlLength(unsigned char control_selector);
+  virtual bool GetXuControlLength(unsigned char control_selector,
+                                  uint16_t* length);
 
   virtual bool GetXuControl(unsigned char control_selector,
                             std::vector<unsigned char>* data);
@@ -44,7 +48,7 @@ class VideoDevice {
  private:
   uint16_t vendor_id_;
   uint16_t product_id_;
-  uint8_t unit_id_;
+  base::Optional<uint8_t> unit_id_;
   base::File file_;
   int file_descriptor_;
 

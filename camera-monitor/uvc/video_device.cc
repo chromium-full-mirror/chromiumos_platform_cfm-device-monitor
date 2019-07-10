@@ -29,7 +29,6 @@ const char kDefaultVideoDevicePoint[] = "device/..";
 VideoDevice::VideoDevice(uint16_t vendor_id, uint16_t product_id)
     : vendor_id_(vendor_id),
       product_id_(product_id),
-      unit_id_(-1),
       file_descriptor_(-1) {}
 
 VideoDevice::~VideoDevice() {
@@ -46,7 +45,7 @@ bool VideoDevice::OpenDevice() {
   std::vector<base::FilePath> dev_paths;
   if (!FindDevices(kDefaultVideoDeviceMountPoint, kDefaultVideoDevicePoint,
                    vendor_id_, product_id_, &dev_paths)) {
-    LOG(ERROR) << "Failed to find devices";
+    LOG(ERROR) << "Failed to find devices.";
     return false;
   }
   if (dev_paths.empty()) {
@@ -78,15 +77,17 @@ bool VideoDevice::QueryXuControl(unsigned char control_selector,
                                  uint8_t query_request,
                                  uint16_t size) {
   if (!file_.IsValid()) {
+    LOG(ERROR) << "File is invalid when querying xu control.";
     return false;
   }
 
-  if (unit_id_ < 0) {
+  if (!unit_id_.has_value()) {
+    LOG(ERROR) << "Unit id is not set.";
     return false;
   }
 
   struct uvc_xu_control_query control_query;
-  control_query.unit = unit_id_;
+  control_query.unit = *unit_id_;
   control_query.selector = control_selector;
   control_query.query = query_request;
   control_query.size = size;
@@ -95,30 +96,30 @@ bool VideoDevice::QueryXuControl(unsigned char control_selector,
       HANDLE_EINTR(ioctl(file_descriptor_, UVCIOC_CTRL_QUERY, &control_query));
 
   if (error < 0) {
+    LOG(ERROR) << "ioctl call failed.";
     return false;
   }
   return true;
 }
 
-uint16_t VideoDevice::GetXuControlLength(unsigned char control_selector) {
-  uint16_t data_len;
-  if (QueryXuControl(control_selector, reinterpret_cast<uint8_t*>(&data_len),
-                     UVC_GET_LEN, sizeof(data_len)) < 0) {
-    return -1;
-  }
-  return data_len;
+bool VideoDevice::GetXuControlLength(unsigned char control_selector,
+                                     uint16_t* length) {
+  return QueryXuControl(control_selector, reinterpret_cast<uint8_t*>(length),
+                     UVC_GET_LEN, sizeof(uint16_t));
 }
 
 bool VideoDevice::GetXuControl(unsigned char control_selector,
                                std::vector<unsigned char>* data) {
-  uint16_t data_len = GetXuControlLength(control_selector);
-  if (data_len < 0) {
+  uint16_t data_len;
+  if (!GetXuControlLength(control_selector, &data_len)) {
+    LOG(ERROR) << "Failed to get xu control length.";
     return false;
   }
   data->resize(data_len);
   int error =
       QueryXuControl(control_selector, data->data(), UVC_GET_CUR, data_len);
   if (error < 0) {
+    LOG(ERROR) << "Failed to get xu control data.";
     return false;
   }
   return true;
@@ -129,6 +130,7 @@ bool VideoDevice::SetXuControl(unsigned char control_selector,
   int error =
       QueryXuControl(control_selector, data.data(), UVC_SET_CUR, data.size());
   if (error < 0) {
+    LOG(ERROR) << "Failed to set xu control data.";
     return false;
   }
   return true;
