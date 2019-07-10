@@ -22,11 +22,9 @@ bool GetDirectoryContents(const std::string& directory,
  * Iterate the mount point to look for the given vid and pid.
  * Important to note that device_point must be a relative path
  */
-bool FindDevices(std::string mount_point,
-                 std::string device_point,
-                 uint16_t usb_vid,
-                 uint16_t usb_pid,
-                 std::vector<base::FilePath>* devices);
+bool FindDevices(std::string mount_point, std::string device_point,
+                 base::FilePath dev_dir, uint16_t usb_vid, uint16_t usb_pid,
+                 std::vector<base::FilePath> *devices);
 
 }  // namespace uvc
 }  // namespace cfm

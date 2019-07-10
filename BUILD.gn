@@ -18,6 +18,7 @@ group("all") {
       ":apex-monitor-test",
       ":camera-hotplug-test",
       ":camera-monitor-test",
+      ":video-device-test",
     ]
   }
 }
@@ -144,6 +145,20 @@ if (use.test) {
       "libbrillo-test-${libbase_ver}",
       "libchrome-test-${libbase_ver}",
       "libcros_config",
+    ]
+  }
+  executable("video-device-test") {
+    sources = [
+      "camera-monitor/uvc/utilities_test.cc",
+      "camera-monitor/uvc/video_device_test.cc",
+    ]
+    configs += [
+      "//common-mk:test",
+      ":target_defaults",
+    ]
+    deps = [
+      ":uvc-video-device",
+      "//common-mk/testrunner",
     ]
   }
 }

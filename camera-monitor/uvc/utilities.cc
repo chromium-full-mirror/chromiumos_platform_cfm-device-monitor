@@ -31,13 +31,11 @@ bool GetDirectoryContents(const std::string& directory,
   return true;
 }
 
-bool FindDevices(std::string mount_point,
-                 std::string device_point,
-                 uint16_t usb_vendor_id,
+bool FindDevices(std::string mount_point, std::string device_point,
+                 base::FilePath dev_dir, uint16_t usb_vendor_id,
                  uint16_t usb_product_id,
-                 std::vector<base::FilePath>* devices) {
-  if (usb_vendor_id < 0 || usb_product_id < 0 || mount_point.empty() ||
-      device_point.empty()) {
+                 std::vector<base::FilePath> *devices) {
+  if (mount_point.empty() || device_point.empty()) {
     return false;
   }
 
@@ -69,7 +67,8 @@ bool FindDevices(std::string mount_point,
     std::string trimmed;
     base::TrimWhitespaceASCII(vendor_id, base::TRIM_ALL, &trimmed);
     if (!base::HexStringToInt(trimmed, &vidnum)) {
-      LOG(ERROR) << "Failed to convert vendor ID to int";
+      LOG(ERROR) << "Failed to convert vendor ID ("
+                 << trimmed << ") to int";
       continue;
     }
     if (vidnum != usb_vendor_id) {
@@ -90,7 +89,8 @@ bool FindDevices(std::string mount_point,
     }
 
     if (pidnum == usb_product_id) {
-      devices->push_back(base::FilePath("/dev/" + content));
+      LOG(INFO) << "Device path" << dev_dir.Append(content).value();
+      devices->push_back(dev_dir.Append(content));
     }
   }
   return true;

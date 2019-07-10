@@ -6,30 +6,51 @@
 
 #include <base/files/file.h>
 #include <base/logging.h>
-#include <base/posix/eintr_wrapper.h>
 #include <fcntl.h>
 #include <linux/usb/video.h>
 #include <linux/uvcvideo.h>
 #include <linux/videodev2.h>
 #include <string.h>
-#include <sys/ioctl.h>
 
 #include <algorithm>
-
-#include "cfm-device-monitor/camera-monitor/uvc/utilities.h"
+#include <utility>
 
 namespace cfm {
 namespace uvc {
 
 namespace {
-const char kDefaultVideoDeviceMountPoint[] = "/sys/class/video4linux";
-const char kDefaultVideoDevicePoint[] = "device/..";
+
+class RealDelegate : public VideoDevice::Delegate {
+ public:
+  RealDelegate() = default;
+
+  bool FindDevicesWrapper(uint16_t vendor_id,
+                          uint16_t product_id,
+                          std::vector<base::FilePath>
+                          *devices) {
+    return FindDevices(kDefaultVideoDeviceMountPoint,
+                       kDefaultVideoDevicePoint,
+                       base::FilePath("/dev/"),
+                       vendor_id, product_id, devices);
+  }
+
+  int Ioctl(int fd, int request, uvc_xu_control_query* query) {
+    return HANDLE_EINTR(ioctl(fd, request, query));
+  }
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(RealDelegate);
+};
+
 }  // namespace
 
 VideoDevice::VideoDevice(uint16_t vendor_id, uint16_t product_id)
-    : vendor_id_(vendor_id),
-      product_id_(product_id),
-      file_descriptor_(-1) {}
+  : VideoDevice(vendor_id, product_id, std::unique_ptr<RealDelegate>()) {}
+
+VideoDevice::VideoDevice(uint16_t vendor_id, uint16_t product_id,
+                         std::unique_ptr<Delegate> delegate)
+    : vendor_id_(vendor_id), product_id_(product_id),
+      delegate_(std::move(delegate)), file_descriptor_(-1) {}
 
 VideoDevice::~VideoDevice() {
   if (IsValid()) {
@@ -43,9 +64,8 @@ bool VideoDevice::IsValid() {
 
 bool VideoDevice::OpenDevice() {
   std::vector<base::FilePath> dev_paths;
-  if (!FindDevices(kDefaultVideoDeviceMountPoint, kDefaultVideoDevicePoint,
-                   vendor_id_, product_id_, &dev_paths)) {
-    LOG(ERROR) << "Failed to find devices.";
+  if (!delegate_->FindDevicesWrapper(vendor_id_, product_id_, &dev_paths)) {
+    LOG(ERROR) << "Failed to find devices";
     return false;
   }
   if (dev_paths.empty()) {
@@ -55,7 +75,8 @@ bool VideoDevice::OpenDevice() {
   base::FilePath dev_path = dev_paths.at(0);
   int fd = open(dev_path.value().c_str(), O_RDWR | O_NONBLOCK, 0);
   if (fd == -1) {
-    LOG(ERROR) << "Failed to open device. Open file failed.";
+    LOG(ERROR) << "Failed to open device. Open file failed."
+               << dev_path.value().c_str();
     return false;
   }
 
@@ -93,7 +114,7 @@ bool VideoDevice::QueryXuControl(unsigned char control_selector,
   control_query.size = size;
   control_query.data = data;
   int error =
-      HANDLE_EINTR(ioctl(file_descriptor_, UVCIOC_CTRL_QUERY, &control_query));
+      delegate_->Ioctl(file_descriptor_, UVCIOC_CTRL_QUERY, &control_query);
 
   if (error < 0) {
     LOG(ERROR) << "ioctl call failed.";

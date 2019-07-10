@@ -8,16 +8,37 @@
 #include <base/files/file.h>
 #include <base/macros.h>
 #include <base/optional.h>
+#include <base/posix/eintr_wrapper.h>
+#include <linux/uvcvideo.h>
+#include <sys/ioctl.h>
+
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
+
+#include "cfm-device-monitor/camera-monitor/uvc/utilities.h"
 
 namespace cfm {
 namespace uvc {
 
+const char kDefaultVideoDeviceMountPoint[] = "/sys/class/video4linux";
+const char kDefaultVideoDevicePoint[] = "device/..";
+
 class VideoDevice {
  public:
-  VideoDevice(uint16_t vendor_id, uint16_t product_id);
+  // The Delegate interface performs work on behalf of VideoDevice.
+  class Delegate {
+   public:
+    virtual ~Delegate() = default;
+    virtual bool FindDevicesWrapper(uint16_t vendor_id, uint16_t product_id,
+                                    std::vector<base::FilePath> *devices) = 0;
+    virtual int Ioctl(int fd, int request, uvc_xu_control_query* query) = 0;
+  };
+  explicit VideoDevice(uint16_t vendor_id, uint16_t product_id);
+
+  explicit VideoDevice(uint16_t vendor_id, uint16_t product_id,
+                       std::unique_ptr<Delegate> delegate);
   virtual ~VideoDevice();
 
   base::Optional<uint8_t> GetUnitId() { return unit_id_; }
@@ -31,16 +52,14 @@ class VideoDevice {
   virtual bool OpenDevice();
   virtual void CloseDevice();
 
-  virtual bool QueryXuControl(unsigned char control_selector,
-                              uint8_t* data,
-                              uint8_t query_request,
-                              uint16_t size);
+  virtual bool QueryXuControl(unsigned char control_selector, uint8_t *data,
+                              uint8_t query_request, uint16_t size);
 
   virtual bool GetXuControlLength(unsigned char control_selector,
                                   uint16_t* length);
 
   virtual bool GetXuControl(unsigned char control_selector,
-                            std::vector<unsigned char>* data);
+                            std::vector<unsigned char> *data);
 
   virtual bool SetXuControl(unsigned char control_selector,
                             std::vector<unsigned char> data);
@@ -49,6 +68,7 @@ class VideoDevice {
   uint16_t vendor_id_;
   uint16_t product_id_;
   base::Optional<uint8_t> unit_id_;
+  std::unique_ptr<Delegate> delegate_;
   base::File file_;
   int file_descriptor_;
 
