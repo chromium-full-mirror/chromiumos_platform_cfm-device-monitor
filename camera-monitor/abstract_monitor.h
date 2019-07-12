@@ -28,6 +28,9 @@ class AbstractMonitor {
   // Must be called by user after all initialization is done.
   bool StartMonitor();
 
+  // Interface to log the camera information every |time_interval|.
+  virtual void LogPeriodically(const base::TimeDelta& time_interval) = 0;
+
  private:
   base::Lock monitor_lock_;
   base::ConditionVariable wait_condition_;

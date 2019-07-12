@@ -51,6 +51,9 @@ static_library("libcamera-monitor") {
     "camera-monitor/udev.cc",
   ]
   configs += [ ":target_defaults" ]
+  deps = [
+    ":uvc-video-device",
+  ]
 }
 
 executable("huddly-monitor") {

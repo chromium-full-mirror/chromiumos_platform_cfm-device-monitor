@@ -45,7 +45,7 @@ class RealDelegate : public VideoDevice::Delegate {
 }  // namespace
 
 VideoDevice::VideoDevice(uint16_t vendor_id, uint16_t product_id)
-  : VideoDevice(vendor_id, product_id, std::unique_ptr<RealDelegate>()) {}
+  : VideoDevice(vendor_id, product_id, std::make_unique<RealDelegate>()) {}
 
 VideoDevice::VideoDevice(uint16_t vendor_id, uint16_t product_id,
                          std::unique_ptr<Delegate> delegate)
@@ -63,6 +63,9 @@ bool VideoDevice::IsValid() {
 }
 
 bool VideoDevice::OpenDevice() {
+  if (IsValid()) {
+    return true;
+  }
   std::vector<base::FilePath> dev_paths;
   if (!delegate_->FindDevicesWrapper(vendor_id_, product_id_, &dev_paths)) {
     LOG(ERROR) << "Failed to find devices";
