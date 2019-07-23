@@ -37,9 +37,13 @@ class HuddlyDaemon : public brillo::Daemon {
   }
 
  private:
-  void OnCameraAdded() { monitor_object_.UpdateCondition(true); }
+  void OnCameraAdded() {
+    monitor_object_.UpdateCondition(true);
+  }
 
-  void OnCameraRemoved() { monitor_object_.UpdateCondition(false); }
+  void OnCameraRemoved() {
+    monitor_object_.UpdateCondition(false);
+  }
 
   huddly_monitor::HuddlyMonitor monitor_object_;
 

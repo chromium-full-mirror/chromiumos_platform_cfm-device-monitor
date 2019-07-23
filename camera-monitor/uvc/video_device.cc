@@ -6,6 +6,7 @@
 
 #include <base/files/file.h>
 #include <base/logging.h>
+#include <base/posix/eintr_wrapper.h>
 #include <fcntl.h>
 #include <linux/usb/video.h>
 #include <linux/uvcvideo.h>
@@ -82,7 +83,7 @@ bool VideoDevice::OpenDevice() {
                << dev_path.value().c_str();
     return false;
   }
-
+  LOG(INFO) << "File path: " << dev_path.value();
   file_ = base::File(dev_path, base::File::FLAG_OPEN | base::File::FLAG_READ);
   file_descriptor_ = fd;
   return true;
@@ -120,7 +121,8 @@ bool VideoDevice::QueryXuControl(unsigned char control_selector,
       delegate_->Ioctl(file_descriptor_, UVCIOC_CTRL_QUERY, &control_query);
 
   if (error < 0) {
-    LOG(ERROR) << "ioctl call failed.";
+    LOG(ERROR) << "ioctl call failed. " << strerror(errno);
+    CloseDevice();
     return false;
   }
   return true;
