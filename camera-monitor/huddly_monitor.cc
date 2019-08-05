@@ -199,22 +199,28 @@ bool HuddlyMonitor::PowerCycleUsbPort(uint16_t vid, uint16_t pid,
 }
 
 bool HuddlyMonitor::Respond() {
-  const base::TimeDelta kPowerCycleDelay =
-      base::TimeDelta::FromMilliseconds(200);
-
   bool result = false;
 
-  // Guado can't power cycle USB devices trough permission_broker, it uses a
-  // board specific implementation instead.
-  std::string board = base::SysInfo::GetLsbReleaseBoard();
-  if (base::StartsWith(board, "guado", base::CompareCase::SENSITIVE)) {
-    result = HotplugDeviceGuado(kHuddlyVid, kHuddlyPid, klog_pipe_);
-  } else if (base::StartsWith(board, "fizz", base::CompareCase::SENSITIVE)) {
-    result = PowerCycleUsbPort(kHuddlyVid, kHuddlyPid, kPowerCycleDelay);
-    ConsumeAndDiscardInput(klog_pipe_);
+  if (camera_->IsValid()) {
+    LOG(INFO) << "Soft reset through XU control.";
+    result = camera_->Reset();
   } else {
-    LOG(WARNING) << "Unrecognized board type";
-    result = false;
+    const base::TimeDelta kPowerCycleDelay =
+      base::TimeDelta::FromMilliseconds(200);
+    // Guado can't power cycle USB devices trough permission_broker, it uses a
+    // board specific implementation instead.
+    std::string board = base::SysInfo::GetLsbReleaseBoard();
+    if (base::StartsWith(board, "guado", base::CompareCase::SENSITIVE)) {
+      LOG(INFO) << "Hard reset through hotplugging guado.";
+      result = HotplugDeviceGuado(kHuddlyVid, kHuddlyPid, klog_pipe_);
+    } else if (base::StartsWith(board, "fizz", base::CompareCase::SENSITIVE)) {
+      LOG(INFO) << "Hard reset through power cycling port for fizz.";
+      result = PowerCycleUsbPort(kHuddlyVid, kHuddlyPid, kPowerCycleDelay);
+      ConsumeAndDiscardInput(klog_pipe_);
+    } else {
+      LOG(WARNING) << "Unrecognized board type";
+      result = false;
+    }
   }
 
   if (result) {
