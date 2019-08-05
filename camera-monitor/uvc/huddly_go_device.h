@@ -20,6 +20,7 @@ enum class HuddlyXuControl : unsigned char {
   TEMPERATURE_MONITOR = 0x02,
   POWER_MONITOR = 0x03,
   VERSION = 0x13,
+  REBOOT = 0x11,
 };
 
 enum class HuddlyStreamMode : uint16_t {
@@ -27,6 +28,13 @@ enum class HuddlyStreamMode : uint16_t {
   DUAL = 0x0001,
   TRIPLE = 0x0002,
   WRITE_ENABLE = 0x8eb0,
+};
+
+enum HuddlyBootloader: uint16_t {
+  DISABLE = 0x0000,
+  ENABLE = 0x3974,
+  REBOOT_WITHOUT_BOOTLOADER = 0x0003,  // Bootloader must be enabled
+  REBOOT_WITH_BOOTLOADER = 0x1399,  // Bootloader must be enabled
 };
 
 // Huddly temperature data
@@ -72,6 +80,7 @@ class HuddlyGoDevice : public cfm::uvc::VideoDevice {
   int GetTemperature(HuddlyTemperatureMonitor* monitor);
   int GetPower(HuddlyPowerMonitor* monitor);
   int GetVersion(HuddlyVersion* firmware_version);
+  bool Reset();
 
   static std::string StreamModeToStr(HuddlyStreamMode stream_mode);
 

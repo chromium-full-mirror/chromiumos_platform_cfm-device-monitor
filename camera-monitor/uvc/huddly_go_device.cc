@@ -8,6 +8,7 @@
 #include <base/strings/stringprintf.h>
 #include <endian.h>
 #include <sys/types.h>
+#include <vector>
 
 namespace cfm {
 namespace uvc {
@@ -107,6 +108,28 @@ int HuddlyGoDevice::GetVersion(HuddlyVersion* firmware_version) {
       base::StringPrintf("%d.%d.%d", version[3], version[2], version[1]);
 
   return 0;
+}
+
+bool HuddlyGoDevice::Reset() {
+  if (!IsValid()) {
+    OpenDevice();
+  }
+  std::vector<unsigned char> data(2);
+  data[0] = HuddlyBootloader::ENABLE & 0xff;
+  data[1] = (HuddlyBootloader::ENABLE >> 8);
+  if (!SetControl(HuddlyXuControl::REBOOT, data)) {
+    LOG(ERROR) << "Unable to enable bootloader for reboot.";
+    return false;
+  }
+  LOG(INFO) << "Enter bootloader for reboot";
+  data[0] = HuddlyBootloader::REBOOT_WITHOUT_BOOTLOADER & 0xff;
+  data[1] = (HuddlyBootloader::REBOOT_WITHOUT_BOOTLOADER >> 8);
+  if (!SetControl(HuddlyXuControl::REBOOT, data)) {
+    LOG(ERROR) << "Unable to reboot without bootloader.";
+    return false;
+  }
+  LOG(INFO) << "Reboot without bootloader";
+  return true;
 }
 
 bool HuddlyGoDevice::GetControl(HuddlyXuControl control_selector,

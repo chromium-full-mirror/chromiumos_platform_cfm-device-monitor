@@ -59,6 +59,11 @@ bool FindDevices(std::string mount_point, std::string device_point,
 
     base::FilePath vendor_true_path =
         base::MakeAbsoluteFilePath(vendor_id_path);
+    base::File file(vendor_true_path,
+                    base::File::FLAG_OPEN | base::File::FLAG_READ);
+    if (!file.IsValid()) {
+      continue;
+    }
     if (!base::ReadFileToString(vendor_true_path, &vendor_id)) {
       LOG(ERROR) << "Failed to read vendor ID";
       continue;
