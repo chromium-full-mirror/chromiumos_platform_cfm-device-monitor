@@ -35,7 +35,11 @@ namespace {
 
 const char kError[] = "uvcvideo: Failed";
 const char kErrorException[] = "uvcvideo: Failed to resubmit video URB";
-
+const float kMaxCurrent = 0.75f;
+const float kMaxVoltage = 5.25f;
+const float kMinVoltage = 4.45f;
+const float kMaxChipTemperature = 110.0f;
+const float kMaxBoardTemperature = 85.0f;
 }  // namespace
 
 // TODO(felixe): Using popen() to get a FILE* here and then using fileno() is
@@ -87,6 +91,22 @@ bool HuddlyMonitor::InitDBus() {
   return true;
 }
 
+void HuddlyMonitor::CheckMaxThreshold(const std::string& property,
+                                      float value, float threshold) {
+  if (value >= threshold) {
+    LOG(WARNING) << "Reached max " << property << " threshold ("
+                 << threshold << "): " << value;
+  }
+}
+
+void HuddlyMonitor::CheckMinThreshold(const std::string& property,
+                                      float value, float threshold) {
+  if (value <= threshold) {
+    LOG(WARNING) << "Reached min " << property << " threshold ("
+                 << threshold << "): " << value;
+  }
+}
+
 void HuddlyMonitor::LogPeriodically(const base::TimeDelta& time_interval) {
   camera_->OpenDevice();
   if (camera_->IsValid()) {
@@ -112,9 +132,13 @@ void HuddlyMonitor::LogTemperature() {
   LOG(INFO) << "Min temperature on MV2 chip:" << temperature_monitor.mv2_min;
   LOG(INFO) << "Current temperature on MV2 chip:" << temperature_monitor.mv2;
   LOG(INFO) << "Max temperature on MV2 chip:" << temperature_monitor.mv2_max;
+  CheckMaxThreshold("chip temperature", temperature_monitor.mv2_max,
+                    kMaxChipTemperature);
   LOG(INFO) << "Min temperature on PCB:" << temperature_monitor.pcb_min;
   LOG(INFO) << "Current temperature on PCB:" << temperature_monitor.pcb;
   LOG(INFO) << "Max temperature on PCB:" << temperature_monitor.pcb_max;
+  CheckMaxThreshold("board temperature", temperature_monitor.pcb_max,
+                    kMaxBoardTemperature);
 }
 
 void HuddlyMonitor::LogPower() {
@@ -125,11 +149,14 @@ void HuddlyMonitor::LogPower() {
     return;
   }
   LOG(INFO) << "Min voltage:" << power_monitor.voltage_min;
+  CheckMinThreshold("voltage", power_monitor.voltage_min, kMinVoltage);
   LOG(INFO) << "Previous sampled voltage:" << power_monitor.voltage;
   LOG(INFO) << "Max voltage:" << power_monitor.voltage_max;
+  CheckMaxThreshold("voltage", power_monitor.voltage_max, kMaxVoltage);
   LOG(INFO) << "Min current:" << power_monitor.current_min;
   LOG(INFO) << "Previous sampled current:" << power_monitor.current;
   LOG(INFO) << "Max current:" << power_monitor.current_max;
+  CheckMaxThreshold("current", power_monitor.current_max, kMaxCurrent);
   LOG(INFO) << "Min power usage:" << power_monitor.power_min;
   LOG(INFO) << "Previously sampled power usage:" << power_monitor.power;
   LOG(INFO) << "Max power usage:" << power_monitor.power_max;

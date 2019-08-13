@@ -37,6 +37,10 @@ class HuddlyMonitor : public AbstractMonitor {
  private:
   bool InitDBus();
   bool PowerCycleUsbPort(uint16_t vid, uint16_t pid, base::TimeDelta delay);
+  void CheckMaxThreshold(const std::string& property,
+                         float value, float threshold);
+  void CheckMinThreshold(const std::string& property,
+                         float value, float threshold);
   void LogPower();
   void LogTemperature();
   void LogCameraInfo();
