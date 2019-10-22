@@ -50,7 +50,6 @@ HuddlyMonitor::HuddlyMonitor(bool init_wait_val, uint32_t sleep_time)
       error_exception_(kErrorException) {
   camera_ = std::make_unique<cfm::uvc::HuddlyGoDevice>(
       cfm::uvc::kHuddlyVendorId, cfm::uvc::kHuddlyProductId);
-  camera_->OpenDevice();
 }
 
 HuddlyMonitor::~HuddlyMonitor() {
@@ -107,15 +106,24 @@ void HuddlyMonitor::CheckMinThreshold(const std::string& property,
   }
 }
 
+void HuddlyMonitor::StartMetricsLog(const base::TimeDelta &start_delay,
+                                    const base::TimeDelta &time_interval) {
+  base::MessageLoop::current()->task_runner()->PostDelayedTask(
+      FROM_HERE,
+      base::Bind(&HuddlyMonitor::LogPeriodically, base::Unretained(this),
+                 time_interval),
+      start_delay);
+}
+
 void HuddlyMonitor::LogPeriodically(const base::TimeDelta& time_interval) {
   camera_->OpenDevice();
   if (camera_->IsValid()) {
     LogCameraInfo();
     LogTemperature();
     LogPower();
-  } else {
-    camera_->CloseDevice();
   }
+  camera_->CloseDevice();
+
   base::MessageLoop::current()->task_runner()->PostDelayedTask(
       FROM_HERE, base::Bind(&HuddlyMonitor::LogPeriodically,
                             base::Unretained(this), time_interval),
