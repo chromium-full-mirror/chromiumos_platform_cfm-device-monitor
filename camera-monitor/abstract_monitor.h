@@ -29,7 +29,8 @@ class AbstractMonitor {
   bool StartMonitor();
 
   // Interface to log the camera information every |time_interval|.
-  virtual void LogPeriodically(const base::TimeDelta& time_interval) = 0;
+  virtual void StartMetricsLog(const base::TimeDelta &start_delay,
+                               const base::TimeDelta &time_interval) = 0;
 
  private:
   base::Lock monitor_lock_;

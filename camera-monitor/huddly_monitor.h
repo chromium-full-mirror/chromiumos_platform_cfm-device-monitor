@@ -30,7 +30,8 @@ class HuddlyMonitor : public AbstractMonitor {
   HuddlyMonitor(bool init_wait_val, uint32_t sleep_time);
   ~HuddlyMonitor();
 
-  void LogPeriodically(const base::TimeDelta& time_interval) override;
+  void StartMetricsLog(const base::TimeDelta &start_delay,
+                       const base::TimeDelta &time_interval) override;
   bool VitalsExist() override;
   bool Respond() override;
 
@@ -41,6 +42,8 @@ class HuddlyMonitor : public AbstractMonitor {
                          float value, float threshold);
   void CheckMinThreshold(const std::string& property,
                          float value, float threshold);
+
+  void LogPeriodically(const base::TimeDelta &time_interval);
   void LogPower();
   void LogTemperature();
   void LogCameraInfo();
