@@ -18,7 +18,6 @@ group("all") {
       ":apex-monitor-test",
       ":camera-hotplug-test",
       ":camera-monitor-test",
-      ":video-device-test",
     ]
   }
 }
@@ -34,15 +33,6 @@ pkg_config("target_defaults") {
   ]
 }
 
-static_library("uvc-video-device") {
-  sources = [
-    "camera-monitor/uvc/huddly_go_device.cc",
-    "camera-monitor/uvc/utilities.cc",
-    "camera-monitor/uvc/video_device.cc",
-  ]
-  configs += [ ":target_defaults" ]
-}
-
 static_library("libcamera-monitor") {
   sources = [
     "camera-monitor/abstract_monitor.cc",
@@ -51,9 +41,6 @@ static_library("libcamera-monitor") {
     "camera-monitor/udev.cc",
   ]
   configs += [ ":target_defaults" ]
-  deps = [
-    ":uvc-video-device",
-  ]
 }
 
 executable("huddly-monitor") {
@@ -63,7 +50,6 @@ executable("huddly-monitor") {
   configs += [ ":target_defaults" ]
   deps = [
     ":libcamera-monitor",
-    ":uvc-video-device",
   ]
 }
 
@@ -148,20 +134,6 @@ if (use.test) {
       "libbrillo-test-${libbase_ver}",
       "libchrome-test-${libbase_ver}",
       "libcros_config",
-    ]
-  }
-  executable("video-device-test") {
-    sources = [
-      "camera-monitor/uvc/utilities_test.cc",
-      "camera-monitor/uvc/video_device_test.cc",
-    ]
-    configs += [
-      "//common-mk:test",
-      ":target_defaults",
-    ]
-    deps = [
-      ":uvc-video-device",
-      "//common-mk/testrunner",
     ]
   }
 }

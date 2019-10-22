@@ -2,17 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include <base/bind.h>
-#include <base/logging.h>
-#include <base/time/time.h>
-#include <brillo/daemons/daemon.h>
-#include <brillo/syslog_logging.h>
 #include <getopt.h>
-
 #include <cstdio>
 #include <cstdlib>
 #include <string>
 
+#include "base/bind.h"
+#include "base/logging.h"
+#include "brillo/daemons/daemon.h"
+#include "brillo/syslog_logging.h"
 #include "cfm-device-monitor/camera-monitor/huddly_monitor.h"
 #include "cfm-device-monitor/camera-monitor/udev.h"
 
@@ -20,7 +18,6 @@ class HuddlyDaemon : public brillo::Daemon {
  public:
   HuddlyDaemon() : monitor_object_(false, 500) {
     monitor_object_.StartMonitor();
-    monitor_object_.LogPeriodically(base::TimeDelta::FromMinutes(15));
   }
 
  protected:
@@ -37,13 +34,9 @@ class HuddlyDaemon : public brillo::Daemon {
   }
 
  private:
-  void OnCameraAdded() {
-    monitor_object_.UpdateCondition(true);
-  }
+  void OnCameraAdded() { monitor_object_.UpdateCondition(true); }
 
-  void OnCameraRemoved() {
-    monitor_object_.UpdateCondition(false);
-  }
+  void OnCameraRemoved() { monitor_object_.UpdateCondition(false); }
 
   huddly_monitor::HuddlyMonitor monitor_object_;
 
