@@ -70,9 +70,9 @@ bool I2cInterface::I2cWriteAddr(const uint8_t& addr, const unsigned char* buf,
 
   struct i2c_msg msg = {
       .addr = slave_addr_,
-      .buf = write_buf.get(),
       .flags = 0,
       .len = write_buf_size,
+      .buf = write_buf.get(),
   };
 
   struct i2c_rdwr_ioctl_data write_data = {
@@ -96,15 +96,15 @@ bool I2cInterface::I2cReadAddr(const uint8_t& addr, unsigned char* buf,
 
   struct i2c_msg msgs[] = {{
                                .addr = slave_addr_,
-                               .buf = read_addr.get(),
                                .flags = 0,
                                .len = kByteDataSize,
+                               .buf = read_addr.get(),
                            },
                            {
                                .addr = slave_addr_,
-                               .buf = buf,
                                .flags = I2C_M_RD,
                                .len = read_size,
+                               .buf = buf,
                            }};
 
   struct i2c_rdwr_ioctl_data read_data = {
