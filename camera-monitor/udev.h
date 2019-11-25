@@ -12,11 +12,11 @@
 #include <vector>
 
 #include "base/callback.h"
+#include "base/files/file_descriptor_watcher_posix.h"
 #include "base/files/file_path.h"
 #include "base/macros.h"
 #include "base/memory/weak_ptr.h"
 #include "base/strings/stringprintf.h"
-#include "brillo/message_loops/message_loop.h"
 
 #include "cfm-device-monitor/camera-monitor/tools.h"
 
@@ -56,7 +56,7 @@ class Udev {
   std::unique_ptr<udev, UdevDeleter> udev_;
   std::unique_ptr<udev_monitor, UdevMonitorDeleter> monitor_;
 
-  brillo::MessageLoop::TaskId taskid_;
+  std::unique_ptr<base::FileDescriptorWatcher::Controller> watcher_;
 
   base::WeakPtrFactory<Udev> weak_factory_{this};
 

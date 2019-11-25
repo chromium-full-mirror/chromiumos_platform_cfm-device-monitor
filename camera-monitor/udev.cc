@@ -44,16 +44,15 @@ Udev::Udev(const DeviceCallback& camera_added_callback,
     LOG(FATAL) << "Failed to enable receiving on udev monitor";
   }
 
-  taskid_ = brillo::MessageLoop::current()->WatchFileDescriptor(
-      FROM_HERE, udev_monitor_get_fd(monitor_.get()),
-      brillo::MessageLoop::kWatchRead, true,
-      base::Bind(&Udev::OnDeviceAction, weak_factory_.GetWeakPtr()));
-  if (taskid_ == brillo::MessageLoop::kTaskIdNull) {
+  watcher_ = base::FileDescriptorWatcher::WatchReadable(
+      udev_monitor_get_fd(monitor_.get()),
+      base::BindRepeating(&Udev::OnDeviceAction, weak_factory_.GetWeakPtr()));
+  if (watcher_ == nullptr) {
     LOG(FATAL) << "Failed to register listener on udev descriptor";
   }
 }
 
-Udev::~Udev() { brillo::MessageLoop::current()->CancelTask(taskid_); }
+Udev::~Udev() = default;
 
 bool Udev::IsCameraConnected() const {
   std::unique_ptr<udev_enumerate, UdevEnumerateDeleter> enumerate(
