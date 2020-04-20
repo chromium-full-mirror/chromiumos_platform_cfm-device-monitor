@@ -51,15 +51,11 @@ static_library("libcamera-monitor") {
     "camera-monitor/udev.cc",
   ]
   configs += [ ":target_defaults" ]
-  deps = [
-    ":uvc-video-device",
-  ]
+  deps = [ ":uvc-video-device" ]
 }
 
 executable("huddly-monitor") {
-  sources = [
-    "camera-monitor/main.cc",
-  ]
+  sources = [ "camera-monitor/main.cc" ]
   configs += [ ":target_defaults" ]
   deps = [
     ":libcamera-monitor",
@@ -78,13 +74,9 @@ static_library("libmimo-monitor") {
 }
 
 executable("mimo-monitor") {
-  sources = [
-    "mimo-monitor/main.cc",
-  ]
+  sources = [ "mimo-monitor/main.cc" ]
   configs += [ ":target_defaults" ]
-  deps = [
-    ":libmimo-monitor",
-  ]
+  deps = [ ":libmimo-monitor" ]
 }
 
 executable("apex-monitor") {
@@ -99,26 +91,18 @@ executable("apex-monitor") {
 
 if (use.test) {
   executable("camera-monitor-test") {
-    sources = [
-      "camera-monitor/tools_test.cc",
-    ]
+    sources = [ "camera-monitor/tools_test.cc" ]
     configs += [
       "//common-mk:test",
       ":target_defaults",
     ]
-    deps = [
-      ":libcamera-monitor",
-    ]
+    deps = [ ":libcamera-monitor" ]
   }
 
   executable("camera-hotplug-test") {
-    sources = [
-      "camera-monitor/hotplug_test.cc",
-    ]
+    sources = [ "camera-monitor/hotplug_test.cc" ]
     configs += [ ":target_defaults" ]
-    deps = [
-      ":libcamera-monitor",
-    ]
+    deps = [ ":libcamera-monitor" ]
   }
 
   executable("apex-manager-test") {
