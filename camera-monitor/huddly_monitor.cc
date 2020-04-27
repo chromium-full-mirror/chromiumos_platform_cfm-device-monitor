@@ -6,10 +6,10 @@
 
 #include <base/bind.h>
 #include <base/logging.h>
-#include <base/message_loop/message_loop.h>
 #include <base/strings/string_util.h>
 #include <base/sys_info.h>
 #include <base/threading/platform_thread.h>
+#include <base/threading/thread_task_runner_handle.h>
 #include <base/time/time.h>
 #include <dbus/message.h>
 #include <dbus/permission_broker/dbus-constants.h>
@@ -108,7 +108,7 @@ void HuddlyMonitor::CheckMinThreshold(const std::string& property,
 
 void HuddlyMonitor::StartMetricsLog(const base::TimeDelta &start_delay,
                                     const base::TimeDelta &time_interval) {
-  base::MessageLoop::current()->task_runner()->PostDelayedTask(
+  base::ThreadTaskRunnerHandle::Get()->PostDelayedTask(
       FROM_HERE,
       base::Bind(&HuddlyMonitor::LogPeriodically, base::Unretained(this),
                  time_interval),
@@ -124,7 +124,7 @@ void HuddlyMonitor::LogPeriodically(const base::TimeDelta& time_interval) {
   }
   camera_->CloseDevice();
 
-  base::MessageLoop::current()->task_runner()->PostDelayedTask(
+  base::ThreadTaskRunnerHandle::Get()->PostDelayedTask(
       FROM_HERE, base::Bind(&HuddlyMonitor::LogPeriodically,
                             base::Unretained(this), time_interval),
       time_interval);
