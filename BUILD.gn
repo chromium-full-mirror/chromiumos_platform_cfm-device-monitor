@@ -27,7 +27,7 @@ pkg_config("target_defaults") {
   include_dirs = [ ".." ]
 
   pkg_deps = [
-    "libbrillo-${libbase_ver}",
+    "libbrillo",
     "libchrome-${libbase_ver}",
     "libudev",
     "libusb-1.0",
