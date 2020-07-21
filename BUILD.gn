@@ -129,7 +129,7 @@ if (use.test) {
       ":target_defaults",
     ]
     pkg_deps = [
-      "libbrillo-test-${libbase_ver}",
+      "libbrillo-test",
       "libchrome-test-${libbase_ver}",
       "libcros_config",
     ]
