@@ -51,7 +51,7 @@ class UtilitiesTest : public ::testing::Test {
 };
 
 TEST_F(UtilitiesTest, GetContentsForInvalidDirectory) {
-  ASSERT_TRUE(base::DeleteFile(dir_path_, true));
+  ASSERT_TRUE(base::DeletePathRecursively(dir_path_));
   ASSERT_FALSE(base::DirectoryExists(dir_path_));
   std::vector<std::string> contents;
   EXPECT_FALSE(GetDirectoryContents(dir_path_.value(), &contents));
@@ -65,7 +65,7 @@ TEST_F(UtilitiesTest, GetContentsForValidDirectory) {
 }
 
 TEST_F(UtilitiesTest, FindDevicesForInvalidDirectory) {
-  ASSERT_TRUE(base::DeleteFile(dir_path_, true));
+  ASSERT_TRUE(base::DeletePathRecursively(dir_path_));
   ASSERT_FALSE(base::DirectoryExists(dir_path_));
   std::vector<base::FilePath> devices;
   EXPECT_FALSE(FindDevices(dir_path_.value(), kDevicePoint, dev_dir_, kVendorId,

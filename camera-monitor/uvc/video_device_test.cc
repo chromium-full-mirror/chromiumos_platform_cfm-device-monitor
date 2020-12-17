@@ -119,7 +119,7 @@ TEST_F(VideoDeviceTest, SetUnitId) {
 }
 
 TEST_F(VideoDeviceTest, OpenDeviceNoPath) {
-  ASSERT_TRUE(base::DeleteFile(mount_path_, true));
+  ASSERT_TRUE(base::DeletePathRecursively(mount_path_));
   ASSERT_FALSE(base::DirectoryExists(mount_path_));
   EXPECT_FALSE(video_device_->OpenDevice());
 }
