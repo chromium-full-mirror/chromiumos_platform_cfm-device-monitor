@@ -4,6 +4,8 @@
 
 #include "cfm-device-monitor/apex-monitor/fake_i2c_interface.h"
 
+#include <base/logging.h>
+
 namespace {
 
 const size_t kByteDataSize = 1;
