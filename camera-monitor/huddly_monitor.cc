@@ -214,7 +214,7 @@ bool HuddlyMonitor::Respond() {
     result = camera_->Reset();
   } else {
     const base::TimeDelta kPowerCycleDelay =
-      base::TimeDelta::FromMilliseconds(200);
+      base::Milliseconds(200);
     // Guado can't power cycle USB devices trough permission_broker, it uses a
     // board specific implementation instead.
     std::string board = base::SysInfo::GetLsbReleaseBoard();
@@ -236,7 +236,7 @@ bool HuddlyMonitor::Respond() {
     LOG(WARNING) << "Detected crashed camera. Rebooted.";
     const uint32_t kRebootSleepTimeSeconds = 30;
     base::PlatformThread::Sleep(
-        base::TimeDelta::FromSeconds(kRebootSleepTimeSeconds));
+        base::Seconds(kRebootSleepTimeSeconds));
   }
 
   return result;

@@ -52,7 +52,7 @@ void AbstractMonitor::MonitorThread() {
   std::string err_msg;
   while (Monitor(&err_msg)) {
     base::PlatformThread::Sleep(
-        base::TimeDelta::FromMilliseconds(sleep_time_milliseconds_));
+        base::Milliseconds(sleep_time_milliseconds_));
   }
 
   if (terminate_) {

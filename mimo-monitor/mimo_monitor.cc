@@ -162,7 +162,7 @@ void MimoMonitor::TaskScheduler() {
   if (!mimo_found_) {
     base::ThreadTaskRunnerHandle::Get()->PostDelayedTask(
         FROM_HERE, base::Bind(&MimoMonitor::FindMimo, GetWeakPtr()),
-        base::TimeDelta::FromMilliseconds(kFindMimoSleepTimeMs));
+        base::Milliseconds(kFindMimoSleepTimeMs));
     return;
   }
 
@@ -175,7 +175,7 @@ void MimoMonitor::TaskScheduler() {
 
     base::ThreadTaskRunnerHandle::Get()->PostDelayedTask(
         FROM_HERE, base::Bind(&MimoMonitor::FindMimo, GetWeakPtr()),
-        base::TimeDelta::FromMilliseconds(kResetSleepTimeMs));
+        base::Milliseconds(kResetSleepTimeMs));
     return;
   }
 
@@ -188,7 +188,7 @@ void MimoMonitor::TaskScheduler() {
 
     base::ThreadTaskRunnerHandle::Get()->PostDelayedTask(
         FROM_HERE, base::Bind(&MimoMonitor::FindMimo, GetWeakPtr()),
-        base::TimeDelta::FromMilliseconds(kResetSleepTimeMs));
+        base::Milliseconds(kResetSleepTimeMs));
     return;
   }
 
@@ -201,7 +201,7 @@ void MimoMonitor::TaskScheduler() {
 
     base::ThreadTaskRunnerHandle::Get()->PostDelayedTask(
         FROM_HERE, base::Bind(&MimoMonitor::FindMimo, GetWeakPtr()),
-        base::TimeDelta::FromMilliseconds(kResetSleepTimeMs));
+        base::Milliseconds(kResetSleepTimeMs));
     return;
   }
 
@@ -210,7 +210,7 @@ void MimoMonitor::TaskScheduler() {
 
   base::ThreadTaskRunnerHandle::Get()->PostDelayedTask(
       FROM_HERE, base::Bind(&MimoMonitor::CheckMimoHealth, GetWeakPtr()),
-      base::TimeDelta::FromMilliseconds(kPingIntervalMs));
+      base::Milliseconds(kPingIntervalMs));
   return;
 }
 

@@ -16,8 +16,8 @@
 #include "cfm-device-monitor/camera-monitor/huddly_monitor.h"
 #include "cfm-device-monitor/camera-monitor/udev.h"
 
-constexpr auto kMetricsStartDelay = base::TimeDelta::FromMilliseconds(500);
-constexpr auto kMetricsTimeInterval = base::TimeDelta::FromMinutes(15);
+constexpr auto kMetricsStartDelay = base::Milliseconds(500);
+constexpr auto kMetricsTimeInterval = base::Minutes(15);
 
 class HuddlyDaemon : public brillo::Daemon {
  public:

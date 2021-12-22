@@ -108,7 +108,7 @@ bool DisplaylinkMonitor::ReadFrameBuffer(libusb_device *device) {
   frame_cnt1 = data_buf[0];
 
   // Let a few frames go by. Use loop to avoid early return here.
-  base::PlatformThread::Sleep(base::TimeDelta::FromMilliseconds(50));
+  base::PlatformThread::Sleep(base::Milliseconds(50));
 
   // Read frame count again.
   ret = Peek(dev_handle.get(), kPeekValue, kPeekAddr, data_buf, 1);

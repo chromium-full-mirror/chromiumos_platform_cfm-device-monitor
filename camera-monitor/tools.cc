@@ -21,7 +21,7 @@ namespace huddly_monitor {
 namespace {
 
 const base::TimeDelta kHotplugSleepTime =
-    base::TimeDelta::FromMilliseconds(200);
+    base::Milliseconds(200);
 const uint8_t kBufLength = 100;
 
 }  // namespace
