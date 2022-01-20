@@ -5,8 +5,9 @@
 #ifndef CAMERA_MONITOR_UVC_VIDEO_DEVICE_H_
 #define CAMERA_MONITOR_UVC_VIDEO_DEVICE_H_
 
+#include <optional>
+
 #include <base/files/file.h>
-#include <base/optional.h>
 #include <base/posix/eintr_wrapper.h>
 #include <linux/uvcvideo.h>
 #include <sys/ioctl.h>
@@ -44,10 +45,10 @@ class VideoDevice {
 
   virtual ~VideoDevice();
 
-  base::Optional<uint8_t> GetUnitId() { return unit_id_; }
+  std::optional<uint8_t> GetUnitId() { return unit_id_; }
 
   void SetUnitId(uint8_t unit_id) {
-    unit_id_ = base::Optional<uint8_t>(unit_id);
+    unit_id_ = std::optional<uint8_t>(unit_id);
   }
 
   virtual bool IsValid();
@@ -70,7 +71,7 @@ class VideoDevice {
  private:
   uint16_t vendor_id_;
   uint16_t product_id_;
-  base::Optional<uint8_t> unit_id_;
+  std::optional<uint8_t> unit_id_;
   std::unique_ptr<Delegate> delegate_;
   base::File file_;
   int file_descriptor_;
