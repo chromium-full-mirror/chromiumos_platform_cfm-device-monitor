@@ -7,7 +7,6 @@
 
 #include <string>
 #include <vector>
-#include "base/macros.h"
 
 #include "cfm-device-monitor/camera-monitor/uvc/video_device.h"
 
@@ -74,6 +73,9 @@ constexpr uint8_t kHuddlyUnitId = 4;
 class HuddlyGoDevice : public cfm::uvc::VideoDevice {
  public:
   HuddlyGoDevice(uint16_t vendor_id, uint16_t product_id);
+  HuddlyGoDevice(const HuddlyGoDevice&) = delete;
+  HuddlyGoDevice& operator=(const HuddlyGoDevice&) = delete;
+
   ~HuddlyGoDevice() override;
 
   int GetCameraMode(HuddlyStreamMode* mode);
@@ -90,9 +92,6 @@ class HuddlyGoDevice : public cfm::uvc::VideoDevice {
 
   bool SetControl(HuddlyXuControl control_selector,
                   std::vector<unsigned char> data);
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(HuddlyGoDevice);
 };  // HuddlyGoDevice
 
 }  // namespace uvc

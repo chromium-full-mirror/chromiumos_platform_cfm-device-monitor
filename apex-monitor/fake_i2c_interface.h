@@ -23,6 +23,9 @@ namespace apex_monitor {
 class FakeI2cInterface : public BaseI2cInterface {
  public:
   explicit FakeI2cInterface(FakeRegisters* fake_registers);
+  FakeI2cInterface(const FakeI2cInterface&) = delete;
+  FakeI2cInterface& operator=(const FakeI2cInterface&) = delete;
+
   ~FakeI2cInterface();
 
   static std::unique_ptr<FakeI2cInterface> Create(
@@ -43,9 +46,6 @@ class FakeI2cInterface : public BaseI2cInterface {
               const uint8_t& page_number = kPageNumberNone) override;
   bool ClearBit(const uint8_t& reg_addr, const uint8_t& bit_id,
                 const uint8_t& page_number = kPageNumberNone) override;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(FakeI2cInterface);
 };
 
 }  // namespace apex_monitor

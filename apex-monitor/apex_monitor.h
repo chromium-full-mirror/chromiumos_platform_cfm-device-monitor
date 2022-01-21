@@ -20,6 +20,9 @@ namespace apex_monitor {
 class ApexMonitor {
  public:
   explicit ApexMonitor(std::unique_ptr<ApexManager> apex_manager);
+  ApexMonitor(const ApexMonitor&) = delete;
+  ApexMonitor& operator=(const ApexMonitor&) = delete;
+
   ~ApexMonitor();
 
   void StartMonitor();
@@ -59,8 +62,6 @@ class ApexMonitor {
   // Power cycle the chip. Stop monitoring if the chip can't be
   // recovered after max power cycle retry limit.
   void PowerCycleChip();
-
-  DISALLOW_COPY_AND_ASSIGN(ApexMonitor);
 };
 
 class ApexMonitorDaemon : public brillo::Daemon {
@@ -69,6 +70,8 @@ class ApexMonitorDaemon : public brillo::Daemon {
                              std::unique_ptr<ApexMonitor> apex1_monitor)
       : apex0_monitor_(std::move(apex0_monitor)),
         apex1_monitor_(std::move(apex1_monitor)) {}
+  ApexMonitorDaemon(const ApexMonitorDaemon&) = delete;
+  ApexMonitorDaemon& operator=(const ApexMonitorDaemon&) = delete;
 
  protected:
   int OnInit() override {
@@ -80,8 +83,6 @@ class ApexMonitorDaemon : public brillo::Daemon {
  private:
   std::unique_ptr<ApexMonitor> apex0_monitor_{nullptr};
   std::unique_ptr<ApexMonitor> apex1_monitor_{nullptr};
-
-  DISALLOW_COPY_AND_ASSIGN(ApexMonitorDaemon);
 };
 
 }  // namespace apex_monitor

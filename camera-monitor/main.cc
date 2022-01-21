@@ -25,6 +25,8 @@ class HuddlyDaemon : public brillo::Daemon {
     monitor_object_.StartMonitor();
     monitor_object_.StartMetricsLog(kMetricsStartDelay, kMetricsTimeInterval);
   }
+  HuddlyDaemon(const HuddlyDaemon&) = delete;
+  HuddlyDaemon& operator=(const HuddlyDaemon&) = delete;
 
  protected:
   int OnEventLoopStarted() override {
@@ -54,8 +56,6 @@ class HuddlyDaemon : public brillo::Daemon {
   std::unique_ptr<huddly_monitor::Udev> udev_;
 
   base::WeakPtrFactory<HuddlyDaemon> weak_factory_{this};
-
-  DISALLOW_COPY_AND_ASSIGN(HuddlyDaemon);
 };
 
 int main(int argc, char *argv[]) {

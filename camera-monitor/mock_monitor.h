@@ -9,8 +9,6 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#include <base/macros.h>
-
 #include "cfm-device-monitor/camera-monitor/abstract_monitor.h"
 
 namespace huddly_monitor {
@@ -18,6 +16,9 @@ namespace huddly_monitor {
 class MockMonitor : public AbstractMonitor {
  public:
   MockMonitor(bool init_wait_val, uint32_t sleep_time);
+  MockMonitor(const MockMonitor&) = delete;
+  MockMonitor& operator=(const MockMonitor&) = delete;
+
   ~MockMonitor();
 
  private:
@@ -32,8 +33,6 @@ class MockMonitor : public AbstractMonitor {
   bool local_condition;
   bool vitals_exist_custom = true;
   uint64_t local_timestamp = 0;
-
-  DISALLOW_COPY_AND_ASSIGN(MockMonitor);
 };
 
 }  // namespace huddly_monitor

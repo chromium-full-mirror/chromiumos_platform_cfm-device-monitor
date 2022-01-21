@@ -5,8 +5,6 @@
 #ifndef MIMO_MONITOR_SIS_MONITOR_H_
 #define MIMO_MONITOR_SIS_MONITOR_H_
 
-#include <base/macros.h>
-
 #include <libusb-1.0/libusb.h>
 #include <string>
 
@@ -15,6 +13,8 @@ namespace mimo_monitor {
 class SiSMonitor {
  public:
   SiSMonitor();
+  SiSMonitor(const SiSMonitor&) = delete;
+  SiSMonitor& operator=(const SiSMonitor&) = delete;
 
   bool IsSiS(libusb_device *device, const libusb_device_descriptor &desc);
   bool PingSiS(libusb_device *device, int interface);
@@ -39,8 +39,6 @@ class SiSMonitor {
   int addr_in_;
   int addr_out_;
   std::string manufacturer_;
-
-  DISALLOW_COPY_AND_ASSIGN(SiSMonitor);
 };
 
 }  // namespace mimo_monitor

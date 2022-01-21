@@ -18,6 +18,9 @@ namespace mimo_monitor {
 class MimoMonitor : public brillo::Daemon {
  public:
   explicit MimoMonitor(libusb_context *ctx_);
+  MimoMonitor(const MimoMonitor&) = delete;
+  MimoMonitor& operator=(const MimoMonitor&) = delete;
+
   ~MimoMonitor() override;
 
   static std::unique_ptr<MimoMonitor> Create();
@@ -39,8 +42,6 @@ class MimoMonitor : public brillo::Daemon {
 
   base::WeakPtr<MimoMonitor> GetWeakPtr();
   base::WeakPtrFactory<MimoMonitor> weak_factory_;
-
-  DISALLOW_COPY_AND_ASSIGN(MimoMonitor);
 };
 
 }  // namespace mimo_monitor

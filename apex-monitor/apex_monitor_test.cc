@@ -42,14 +42,14 @@ using testing::_;
 class ApexMonitorTest : public testing::Test {
  public:
   ApexMonitorTest() : loop_(nullptr) { loop_.SetAsCurrent(); }
+  ApexMonitorTest(const ApexMonitorTest&) = delete;
+  ApexMonitorTest& operator=(const ApexMonitorTest&) = delete;
+
   ~ApexMonitorTest() override = default;
 
  protected:
   brillo::MockMessageLoop loop_;
   FakeRegisters fake_registers;
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(ApexMonitorTest);
 };
 
 TEST_F(ApexMonitorTest, TestCheckStatusFail) {

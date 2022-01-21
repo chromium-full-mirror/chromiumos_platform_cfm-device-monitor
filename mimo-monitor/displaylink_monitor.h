@@ -5,8 +5,6 @@
 #ifndef MIMO_MONITOR_DISPLAYLINK_MONITOR_H_
 #define MIMO_MONITOR_DISPLAYLINK_MONITOR_H_
 
-#include <base/macros.h>
-
 #include <libusb-1.0/libusb.h>
 #include <string>
 
@@ -15,6 +13,8 @@ namespace mimo_monitor {
 class DisplaylinkMonitor {
  public:
   DisplaylinkMonitor();
+  DisplaylinkMonitor(const DisplaylinkMonitor&) = delete;
+  DisplaylinkMonitor& operator=(const DisplaylinkMonitor&) = delete;
 
   bool IsDisplaylink(libusb_device *device,
                      const libusb_device_descriptor &desc);
@@ -35,8 +35,6 @@ class DisplaylinkMonitor {
 
   // Is Displaylink chip alive.
   bool display_alive_;
-
-  DISALLOW_COPY_AND_ASSIGN(DisplaylinkMonitor);
 };
 
 }  // namespace mimo_monitor

@@ -14,7 +14,6 @@
 #include "base/callback.h"
 #include "base/files/file_descriptor_watcher_posix.h"
 #include "base/files/file_path.h"
-#include "base/macros.h"
 #include "base/memory/weak_ptr.h"
 #include "base/strings/stringprintf.h"
 
@@ -29,6 +28,8 @@ class Udev {
 
   Udev(const DeviceCallback& camera_added_callback,
        const DeviceCallback& camera_removed_callback);
+  Udev(const Udev&) = delete;
+  Udev& operator=(const Udev&) = delete;
 
   ~Udev();
 
@@ -59,8 +60,6 @@ class Udev {
   std::unique_ptr<base::FileDescriptorWatcher::Controller> watcher_;
 
   base::WeakPtrFactory<Udev> weak_factory_{this};
-
-  DISALLOW_COPY_AND_ASSIGN(Udev);
 };
 
 }  // namespace huddly_monitor

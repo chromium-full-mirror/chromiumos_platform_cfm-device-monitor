@@ -16,6 +16,9 @@ class ApexManager {
   explicit ApexManager(const int& chip_id,
                        std::unique_ptr<BaseI2cInterface> apex_interface,
                        BaseI2cInterface* ioexp_interface);
+  ApexManager(const ApexManager&) = delete;
+  ApexManager& operator=(const ApexManager&) = delete;
+
   ~ApexManager();
 
   static std::unique_ptr<ApexManager> Create(
@@ -52,8 +55,6 @@ class ApexManager {
   bool InitThermalSensor();
   bool ExportPowerCtrlGpio();
   inline void TempCodeToCelsius(const uint16_t& temp_code, int* temp);
-
-  DISALLOW_COPY_AND_ASSIGN(ApexManager);
 };
 
 }  // namespace apex_monitor

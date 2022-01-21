@@ -6,7 +6,6 @@
 #define CAMERA_MONITOR_UVC_VIDEO_DEVICE_H_
 
 #include <base/files/file.h>
-#include <base/macros.h>
 #include <base/optional.h>
 #include <base/posix/eintr_wrapper.h>
 #include <linux/uvcvideo.h>
@@ -39,6 +38,10 @@ class VideoDevice {
 
   explicit VideoDevice(uint16_t vendor_id, uint16_t product_id,
                        std::unique_ptr<Delegate> delegate);
+
+  VideoDevice(const VideoDevice&) = delete;
+  VideoDevice& operator=(const VideoDevice&) = delete;
+
   virtual ~VideoDevice();
 
   base::Optional<uint8_t> GetUnitId() { return unit_id_; }
@@ -71,8 +74,6 @@ class VideoDevice {
   std::unique_ptr<Delegate> delegate_;
   base::File file_;
   int file_descriptor_;
-
-  DISALLOW_COPY_AND_ASSIGN(VideoDevice);
 };
 
 }  // namespace uvc

@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#include <base/macros.h>
 #include <base/time/time.h>
 #include <dbus/bus.h>
 #include <dbus/object_proxy.h>
@@ -28,6 +27,9 @@ namespace huddly_monitor {
 class HuddlyMonitor : public AbstractMonitor {
  public:
   HuddlyMonitor(bool init_wait_val, uint32_t sleep_time);
+  HuddlyMonitor(const HuddlyMonitor&) = delete;
+  HuddlyMonitor& operator=(const HuddlyMonitor&) = delete;
+
   ~HuddlyMonitor();
 
   void StartMetricsLog(const base::TimeDelta &start_delay,
@@ -54,8 +56,6 @@ class HuddlyMonitor : public AbstractMonitor {
   scoped_refptr<dbus::Bus> bus_ = nullptr;
   dbus::ObjectProxy* permission_broker_proxy_ = nullptr;
   std::unique_ptr<cfm::uvc::HuddlyGoDevice> camera_ = nullptr;
-
-  DISALLOW_COPY_AND_ASSIGN(HuddlyMonitor);
 };
 
 }  // namespace huddly_monitor

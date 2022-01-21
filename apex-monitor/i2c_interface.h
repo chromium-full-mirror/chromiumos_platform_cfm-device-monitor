@@ -34,6 +34,9 @@ class BaseI2cInterface {
 class I2cInterface : public BaseI2cInterface {
  public:
   I2cInterface();
+  I2cInterface(const I2cInterface&) = delete;
+  I2cInterface& operator=(const I2cInterface&) = delete;
+
   ~I2cInterface();
 
   static std::unique_ptr<I2cInterface> Create(const int& adapter_id,
@@ -63,8 +66,6 @@ class I2cInterface : public BaseI2cInterface {
   base::ScopedFD adapter_fd_;
   uint8_t current_page_;
   uint8_t slave_addr_;
-
-  DISALLOW_COPY_AND_ASSIGN(I2cInterface);
 };
 
 }  // namespace apex_monitor

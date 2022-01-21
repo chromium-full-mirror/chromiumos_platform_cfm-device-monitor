@@ -9,7 +9,6 @@
 #include <tuple>
 #include <vector>
 
-#include "base/macros.h"
 #include "brillo/any.h"
 #include "brillo/dbus/dbus_object.h"
 #include "brillo/dbus/exported_object_manager.h"
@@ -32,6 +31,9 @@ class huddlymonitorInterface {
 // Interface adaptor for org::chromium::huddlymonitor.
 class huddlymonitorAdaptor {
  public:
+  huddlymonitorAdaptor(const huddlymonitorAdaptor&) = delete;
+  huddlymonitorAdaptor& operator=(const huddlymonitorAdaptor&) = delete;
+
   explicit huddlymonitorAdaptor(huddlymonitorInterface *interface)
       : interface_(interface) {}
 
@@ -50,8 +52,6 @@ class huddlymonitorAdaptor {
 
  private:
   huddlymonitorInterface *interface_;  // Owned by container of this adapter.
-
-  DISALLOW_COPY_AND_ASSIGN(huddlymonitorAdaptor);
 };
 
 }  // namespace chromium

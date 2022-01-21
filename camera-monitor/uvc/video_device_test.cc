@@ -7,7 +7,6 @@
 #include <base/files/file_util.h>
 #include <base/files/scoped_temp_dir.h>
 #include <base/logging.h>
-#include <base/macros.h>
 #include <base/memory/ptr_util.h>
 #include <brillo/test_helpers.h>
 #include <gtest/gtest.h>
@@ -30,6 +29,9 @@ class StubDelegate : public VideoDevice::Delegate {
   StubDelegate();
   StubDelegate(std::string mount_point, base::FilePath dev_dir)
       : mount_point_(mount_point), dev_dir_(dev_dir) {}
+
+  StubDelegate(const StubDelegate&) = delete;
+  StubDelegate& operator=(const StubDelegate&) = delete;
 
   void reset() {
     num_ioctls_ = 0;
@@ -69,8 +71,6 @@ class StubDelegate : public VideoDevice::Delegate {
   unsigned int request_;
   struct uvc_xu_control_query* query_;
   std::vector<unsigned char> data_;
-
-  DISALLOW_COPY_AND_ASSIGN(StubDelegate);
 };
 
 class VideoDeviceTest : public ::testing::Test {

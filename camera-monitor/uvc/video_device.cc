@@ -24,6 +24,8 @@ namespace {
 class RealDelegate : public VideoDevice::Delegate {
  public:
   RealDelegate() = default;
+  RealDelegate(const RealDelegate&) = delete;
+  RealDelegate& operator=(const RealDelegate&) = delete;
 
   bool FindDevicesWrapper(uint16_t vendor_id,
                           uint16_t product_id,
@@ -38,9 +40,6 @@ class RealDelegate : public VideoDevice::Delegate {
   int Ioctl(int fd, int request, uvc_xu_control_query* query) {
     return HANDLE_EINTR(ioctl(fd, request, query));
   }
-
- private:
-  DISALLOW_COPY_AND_ASSIGN(RealDelegate);
 };
 
 }  // namespace
