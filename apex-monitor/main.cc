@@ -56,7 +56,7 @@ bool GetI2cBusNumber(int* root_bus_number, int* apex0_bus_number,
            apex_i2c_enum.Next().StripTrailingSeparators();
        !apex_path.empty();
        apex_path = apex_i2c_enum.Next().StripTrailingSeparators()) {
-    apex_path.GetComponents(&path_components);
+    path_components = apex_path.GetComponents();
     if (path_components.back().substr(4) == "dev") {
       continue;
     }
