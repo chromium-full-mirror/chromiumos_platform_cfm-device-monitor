@@ -4,11 +4,11 @@
 
 #include "cfm-device-monitor/apex-monitor/apex_monitor.h"
 
-#include <base/bind.h>
-#include <base/callback_helpers.h>
 #include <base/files/file_path.h>
 #include <base/files/file_util.h>
 #include <base/files/scoped_file.h>
+#include <base/functional/bind.h>
+#include <base/functional/callback_helpers.h>
 #include <base/logging.h>
 #include <base/strings/stringprintf.h>
 #include <brillo/message_loops/message_loop.h>

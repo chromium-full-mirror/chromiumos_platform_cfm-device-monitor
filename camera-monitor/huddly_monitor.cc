@@ -4,7 +4,7 @@
 
 #include "cfm-device-monitor/camera-monitor/huddly_monitor.h"
 
-#include <base/bind.h>
+#include <base/functional/bind.h>
 #include <base/logging.h>
 #include <base/strings/string_util.h>
 #include <base/system/sys_info.h>

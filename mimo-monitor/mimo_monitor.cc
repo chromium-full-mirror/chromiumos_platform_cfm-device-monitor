@@ -4,7 +4,7 @@
 
 #include "cfm-device-monitor/mimo-monitor/mimo_monitor.h"
 
-#include <base/bind.h>
+#include <base/functional/bind.h>
 #include <base/logging.h>
 #include <base/threading/thread_task_runner_handle.h>
 #include <brillo/message_loops/message_loop.h>
