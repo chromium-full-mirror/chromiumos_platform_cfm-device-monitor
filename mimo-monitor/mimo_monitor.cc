@@ -6,7 +6,7 @@
 
 #include <base/functional/bind.h>
 #include <base/logging.h>
-#include <base/threading/thread_task_runner_handle.h>
+#include <base/task/single_thread_task_runner.h>
 #include <brillo/message_loops/message_loop.h>
 #include <brillo/syslog_logging.h>
 
@@ -80,7 +80,7 @@ void MimoMonitor::FindMimo() {
     mimo_found_ = false;
     // Post a task instead of call TaskScheduler directly so current function
     // won't be blocked by it.
-    base::ThreadTaskRunnerHandle::Get()->PostTask(
+    base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
         FROM_HERE, base::Bind(&MimoMonitor::TaskScheduler, GetWeakPtr()));
     return;
   }
@@ -142,7 +142,7 @@ void MimoMonitor::FindMimo() {
     }
   }
 
-  base::ThreadTaskRunnerHandle::Get()->PostTask(
+  base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
       FROM_HERE, base::Bind(&MimoMonitor::TaskScheduler, GetWeakPtr()));
 }
 
@@ -153,14 +153,14 @@ void MimoMonitor::CheckMimoHealth() {
   // Check status of SiS.
   sis_monitor.CheckSiSHealth(touch_device_);
 
-  base::ThreadTaskRunnerHandle::Get()->PostTask(
+  base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
       FROM_HERE, base::Bind(&MimoMonitor::TaskScheduler, GetWeakPtr()));
 }
 
 void MimoMonitor::TaskScheduler() {
   // Didn't find Mimo.
   if (!mimo_found_) {
-    base::ThreadTaskRunnerHandle::Get()->PostDelayedTask(
+    base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
         FROM_HERE, base::Bind(&MimoMonitor::FindMimo, GetWeakPtr()),
         base::Milliseconds(kFindMimoSleepTimeMs));
     return;
@@ -173,7 +173,7 @@ void MimoMonitor::TaskScheduler() {
     ResetDevice(libusb_get_parent(display_device_));
     mimo_found_ = false;
 
-    base::ThreadTaskRunnerHandle::Get()->PostDelayedTask(
+    base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
         FROM_HERE, base::Bind(&MimoMonitor::FindMimo, GetWeakPtr()),
         base::Milliseconds(kResetSleepTimeMs));
     return;
@@ -186,7 +186,7 @@ void MimoMonitor::TaskScheduler() {
     mimo_found_ = false;
     sis_monitor.ResetSiS(touch_device_, kTouchInterface);
 
-    base::ThreadTaskRunnerHandle::Get()->PostDelayedTask(
+    base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
         FROM_HERE, base::Bind(&MimoMonitor::FindMimo, GetWeakPtr()),
         base::Milliseconds(kResetSleepTimeMs));
     return;
@@ -199,7 +199,7 @@ void MimoMonitor::TaskScheduler() {
     mimo_found_ = false;
     ResetDevice(display_device_);
 
-    base::ThreadTaskRunnerHandle::Get()->PostDelayedTask(
+    base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
         FROM_HERE, base::Bind(&MimoMonitor::FindMimo, GetWeakPtr()),
         base::Milliseconds(kResetSleepTimeMs));
     return;
@@ -208,7 +208,7 @@ void MimoMonitor::TaskScheduler() {
   // Everything looks good.
   VLOG(1) << "Mimo is alive.";
 
-  base::ThreadTaskRunnerHandle::Get()->PostDelayedTask(
+  base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
       FROM_HERE, base::Bind(&MimoMonitor::CheckMimoHealth, GetWeakPtr()),
       base::Milliseconds(kPingIntervalMs));
   return;
