@@ -81,7 +81,7 @@ void MimoMonitor::FindMimo() {
     // Post a task instead of call TaskScheduler directly so current function
     // won't be blocked by it.
     base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-        FROM_HERE, base::Bind(&MimoMonitor::TaskScheduler, GetWeakPtr()));
+        FROM_HERE, base::BindOnce(&MimoMonitor::TaskScheduler, GetWeakPtr()));
     return;
   }
 
@@ -143,7 +143,7 @@ void MimoMonitor::FindMimo() {
   }
 
   base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-      FROM_HERE, base::Bind(&MimoMonitor::TaskScheduler, GetWeakPtr()));
+      FROM_HERE, base::BindOnce(&MimoMonitor::TaskScheduler, GetWeakPtr()));
 }
 
 void MimoMonitor::CheckMimoHealth() {
@@ -154,14 +154,14 @@ void MimoMonitor::CheckMimoHealth() {
   sis_monitor.CheckSiSHealth(touch_device_);
 
   base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-      FROM_HERE, base::Bind(&MimoMonitor::TaskScheduler, GetWeakPtr()));
+      FROM_HERE, base::BindOnce(&MimoMonitor::TaskScheduler, GetWeakPtr()));
 }
 
 void MimoMonitor::TaskScheduler() {
   // Didn't find Mimo.
   if (!mimo_found_) {
     base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
-        FROM_HERE, base::Bind(&MimoMonitor::FindMimo, GetWeakPtr()),
+        FROM_HERE, base::BindOnce(&MimoMonitor::FindMimo, GetWeakPtr()),
         base::Milliseconds(kFindMimoSleepTimeMs));
     return;
   }
@@ -174,7 +174,7 @@ void MimoMonitor::TaskScheduler() {
     mimo_found_ = false;
 
     base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
-        FROM_HERE, base::Bind(&MimoMonitor::FindMimo, GetWeakPtr()),
+        FROM_HERE, base::BindOnce(&MimoMonitor::FindMimo, GetWeakPtr()),
         base::Milliseconds(kResetSleepTimeMs));
     return;
   }
@@ -187,7 +187,7 @@ void MimoMonitor::TaskScheduler() {
     sis_monitor.ResetSiS(touch_device_, kTouchInterface);
 
     base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
-        FROM_HERE, base::Bind(&MimoMonitor::FindMimo, GetWeakPtr()),
+        FROM_HERE, base::BindOnce(&MimoMonitor::FindMimo, GetWeakPtr()),
         base::Milliseconds(kResetSleepTimeMs));
     return;
   }
@@ -200,7 +200,7 @@ void MimoMonitor::TaskScheduler() {
     ResetDevice(display_device_);
 
     base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
-        FROM_HERE, base::Bind(&MimoMonitor::FindMimo, GetWeakPtr()),
+        FROM_HERE, base::BindOnce(&MimoMonitor::FindMimo, GetWeakPtr()),
         base::Milliseconds(kResetSleepTimeMs));
     return;
   }
@@ -209,7 +209,7 @@ void MimoMonitor::TaskScheduler() {
   VLOG(1) << "Mimo is alive.";
 
   base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
-      FROM_HERE, base::Bind(&MimoMonitor::CheckMimoHealth, GetWeakPtr()),
+      FROM_HERE, base::BindOnce(&MimoMonitor::CheckMimoHealth, GetWeakPtr()),
       base::Milliseconds(kPingIntervalMs));
   return;
 }

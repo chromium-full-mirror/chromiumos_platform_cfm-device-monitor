@@ -44,7 +44,7 @@ bool AbstractMonitor::StartMonitor() {
   monitor_thread_->Start();
   monitor_thread_->task_runner().get()->PostTask(
       FROM_HERE,
-      base::Bind(&AbstractMonitor::MonitorThread, base::Unretained(this)));
+      base::BindOnce(&AbstractMonitor::MonitorThread, base::Unretained(this)));
   return true;
 }
 

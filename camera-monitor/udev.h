@@ -24,7 +24,7 @@ namespace huddly_monitor {
 // Simple wrapper around udev, tracking if huddly camera is connected or not.
 class Udev {
  public:
-  using DeviceCallback = base::Callback<void()>;
+  using DeviceCallback = base::RepeatingCallback<void()>;
 
   Udev(const DeviceCallback& camera_added_callback,
        const DeviceCallback& camera_removed_callback);

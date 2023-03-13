@@ -110,8 +110,8 @@ void HuddlyMonitor::StartMetricsLog(const base::TimeDelta &start_delay,
                                     const base::TimeDelta &time_interval) {
   base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
       FROM_HERE,
-      base::Bind(&HuddlyMonitor::LogPeriodically, base::Unretained(this),
-                 time_interval),
+      base::BindOnce(&HuddlyMonitor::LogPeriodically, base::Unretained(this),
+                     time_interval),
       start_delay);
 }
 
@@ -125,8 +125,9 @@ void HuddlyMonitor::LogPeriodically(const base::TimeDelta& time_interval) {
   camera_->CloseDevice();
 
   base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
-      FROM_HERE, base::Bind(&HuddlyMonitor::LogPeriodically,
-                            base::Unretained(this), time_interval),
+      FROM_HERE,
+      base::BindOnce(&HuddlyMonitor::LogPeriodically, base::Unretained(this),
+                     time_interval),
       time_interval);
 }
 

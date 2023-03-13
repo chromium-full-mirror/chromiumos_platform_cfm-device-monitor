@@ -31,8 +31,10 @@ class HuddlyDaemon : public brillo::Daemon {
  protected:
   int OnEventLoopStarted() override {
     udev_ = std::make_unique<huddly_monitor::Udev>(
-        base::Bind(&HuddlyDaemon::OnCameraAdded, weak_factory_.GetWeakPtr()),
-        base::Bind(&HuddlyDaemon::OnCameraRemoved, weak_factory_.GetWeakPtr()));
+        base::BindRepeating(&HuddlyDaemon::OnCameraAdded,
+                            weak_factory_.GetWeakPtr()),
+        base::BindRepeating(&HuddlyDaemon::OnCameraRemoved,
+                            weak_factory_.GetWeakPtr()));
 
     if (udev_->IsCameraConnected()) {
       OnCameraAdded();

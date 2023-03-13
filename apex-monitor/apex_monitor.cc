@@ -45,7 +45,7 @@ void ApexMonitor::StartMonitor() { PostTask(&ApexMonitor::CheckChipStatus); }
 template <typename Functor>
 void ApexMonitor::PostTask(Functor&& task, const int& delay_ms) {
   brillo::MessageLoop::current()->PostDelayedTask(
-      FROM_HERE, base::Bind(task, weak_factory_.GetWeakPtr()),
+      FROM_HERE, base::BindOnce(task, weak_factory_.GetWeakPtr()),
       base::Milliseconds(delay_ms));
 }
 
