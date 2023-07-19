@@ -13,7 +13,6 @@
 #include <base/time/time.h>
 #include <dbus/message.h>
 #include <dbus/permission_broker/dbus-constants.h>
-#include <dbus/scoped_dbus_error.h>
 
 #include <fstream>
 #include <functional>
