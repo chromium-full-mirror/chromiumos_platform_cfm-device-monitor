@@ -1,4 +1,4 @@
-// Copyright 2017 The Chromium OS Authors. All rights reserved.
+// Copyright 2017 The ChromiumOS Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -200,10 +200,9 @@ bool HuddlyMonitor::PowerCycleUsbPort(uint16_t vid, uint16_t pid,
   writer.AppendUint16(vid);
   writer.AppendUint16(pid);
   writer.AppendInt64(delay.ToInternalValue());
-  std::unique_ptr<dbus::Response> response(
-      permission_broker_proxy_->CallMethodAndBlock(
-          &method_call, dbus::ObjectProxy::TIMEOUT_USE_DEFAULT));
-  return response.get();
+
+  return permission_broker_proxy_->CallMethodAndBlock(
+          &method_call, dbus::ObjectProxy::TIMEOUT_USE_DEFAULT).has_value();
 }
 
 bool HuddlyMonitor::Respond() {
