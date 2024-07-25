@@ -1,4 +1,4 @@
-// Copyright 2017 The Chromium OS Authors. All rights reserved.
+// Copyright 2017 The ChromiumOS Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -80,7 +80,7 @@ bool SiSMonitor::IsSiS(libusb_device *device,
   // Read Manufacturer.
   mfg_port_ = desc.iManufacturer;
   mfg_size_ = ReadID(device, mfg_port_, &manufacturer_);
-  if (mfg_size_ == 0) {
+  if (mfg_size_ <= 0) {
     LOG(WARNING) << "Read touch manufacturer failed.";
     return false;
   }
@@ -88,7 +88,7 @@ bool SiSMonitor::IsSiS(libusb_device *device,
 
   // Read product.
   ret = ReadID(device, desc.iProduct, &info);
-  if (ret == 0) {
+  if (ret <= 0) {
     LOG(WARNING) << "Read touch product fail.";
     return false;
   }

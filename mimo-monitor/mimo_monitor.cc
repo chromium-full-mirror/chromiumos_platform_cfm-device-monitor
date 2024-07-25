@@ -1,4 +1,4 @@
-// Copyright 2017 The Chromium OS Authors. All rights reserved.
+// Copyright 2017 The ChromiumOS Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
@@ -7,6 +7,7 @@
 #include <base/functional/bind.h>
 #include <base/logging.h>
 #include <base/task/single_thread_task_runner.h>
+#include <base/time/time.h>
 #include <brillo/message_loops/message_loop.h>
 #include <brillo/syslog_logging.h>
 
@@ -21,6 +22,7 @@ namespace {
 const int kFindMimoSleepTimeMs = 60e3;
 const int kResetSleepTimeMs = 10e3;
 const int kPingIntervalMs = 60e3;
+const int64_t kResetThrottleMs = 10 * 60e3;  // 10 minutes
 const int kTouchInterface = 0;
 
 }  // namespace
@@ -157,12 +159,51 @@ void MimoMonitor::CheckMimoHealth() {
       FROM_HERE, base::BindOnce(&MimoMonitor::TaskScheduler, GetWeakPtr()));
 }
 
+void MimoMonitor::FindMimoAfter(int delayMs) {
+  if (delayMs < 0) {
+    delayMs = kResetSleepTimeMs;
+  }
+  base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
+      FROM_HERE, base::BindOnce(&MimoMonitor::FindMimo, GetWeakPtr()),
+      base::Milliseconds(delayMs));
+}
+
+bool MimoMonitor::AllowReset(base::Time now) {
+  // Compare current time with oldest reset time. If delta exceeds 10 minutes,
+  // save the instant time and return true (allow reset).  Otherwise false.
+  const int next_reset_idx = (last_reset_idx_ + 1) % last_reset_ms_.size();
+  const int64_t earliest_reset_ms = last_reset_ms_[next_reset_idx];
+  const int64_t now_ms = now.InMillisecondsSinceUnixEpoch();
+  if (now_ms - earliest_reset_ms > kResetThrottleMs) {
+    last_reset_idx_ = next_reset_idx;
+    last_reset_ms_[last_reset_idx_] = now_ms;
+    return true;
+  }
+  return false;
+}
+
+void MimoMonitor::ResetParent() {
+  mimo_found_ = false;
+  if (AllowReset(base::Time::Now())) {
+    LOG(WARNING) << "Resetting entire device.";
+    ResetDevice(libusb_get_parent(display_device_));
+  } else {
+    VLOG(1) << "Not resetting entire device: throttled.";
+  }
+}
+
+void MimoMonitor::ResetTouch() {
+  mimo_found_ = false;
+  const int ret = sis_monitor.ResetSiS(touch_device_, kTouchInterface);
+  if (ret < 0) {
+    ResetParent();
+  }
+}
+
 void MimoMonitor::TaskScheduler() {
   // Didn't find Mimo.
   if (!mimo_found_) {
-    base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
-        FROM_HERE, base::BindOnce(&MimoMonitor::FindMimo, GetWeakPtr()),
-        base::Milliseconds(kFindMimoSleepTimeMs));
+    FindMimoAfter(kFindMimoSleepTimeMs);
     return;
   }
 
@@ -170,12 +211,8 @@ void MimoMonitor::TaskScheduler() {
   if (!dl_monitor.DisplayStatus() && !sis_monitor.TouchStatus()) {
     // Please see b/109866345 before modyfing the below line.
     LOG(WARNING) << "Both touch and display are down. Resetting Mimo.";
-    ResetDevice(libusb_get_parent(display_device_));
-    mimo_found_ = false;
-
-    base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
-        FROM_HERE, base::BindOnce(&MimoMonitor::FindMimo, GetWeakPtr()),
-        base::Milliseconds(kResetSleepTimeMs));
+    ResetParent();
+    FindMimoAfter();
     return;
   }
 
@@ -183,12 +220,8 @@ void MimoMonitor::TaskScheduler() {
   if (!sis_monitor.TouchStatus()) {
     // Please see b/109866345 before modyfing the below line.
     LOG(WARNING) << "Trying to reset touch panel.";
-    mimo_found_ = false;
-    sis_monitor.ResetSiS(touch_device_, kTouchInterface);
-
-    base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
-        FROM_HERE, base::BindOnce(&MimoMonitor::FindMimo, GetWeakPtr()),
-        base::Milliseconds(kResetSleepTimeMs));
+    ResetTouch();
+    FindMimoAfter();
     return;
   }
 
@@ -198,10 +231,7 @@ void MimoMonitor::TaskScheduler() {
     LOG(WARNING) << "Trying to reset display.";
     mimo_found_ = false;
     ResetDevice(display_device_);
-
-    base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
-        FROM_HERE, base::BindOnce(&MimoMonitor::FindMimo, GetWeakPtr()),
-        base::Milliseconds(kResetSleepTimeMs));
+    FindMimoAfter();
     return;
   }
 
@@ -211,7 +241,6 @@ void MimoMonitor::TaskScheduler() {
   base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
       FROM_HERE, base::BindOnce(&MimoMonitor::CheckMimoHealth, GetWeakPtr()),
       base::Milliseconds(kPingIntervalMs));
-  return;
 }
 
 void MimoMonitor::OnShutdown(int* return_code) {
