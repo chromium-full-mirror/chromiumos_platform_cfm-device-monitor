@@ -65,10 +65,8 @@ const unsigned char kApexBootStateBitMask[] = {0x01, 0x04};
 const char kSysfsGpioPath[] = "/sys/class/gpio/";
 constexpr int kApexPowerCtrlGpioId[] = {416, 417};
 const char kGpioDirOutStr[] = "out";
-const char kGpioValueHigh = '1';
-const char kGpioValueLow = '0';
-const size_t kGpioDirOutStrLen = 3;
-const size_t kGpioValueLen = 1;
+const char kGpioValueHigh[] = "1";
+const char kGpioValueLow[] = "0";
 // Wait 1s for power cycle.
 const uint32_t kApexPowerCycleSlpTimeUs = 1e6;
 
@@ -300,9 +298,7 @@ bool ApexManager::ExportPowerCtrlGpio() {
     return false;
   }
 
-  r = base::WriteFile(gpio_path.Append("direction"), kGpioDirOutStr,
-                      kGpioDirOutStrLen);
-  if (r < 0) {
+  if (!base::WriteFile(gpio_path.Append("direction"), kGpioDirOutStr)) {
     PLOG(ERROR) << "Failed to set GPIO direction for GPIO"
                 << kApexPowerCtrlGpioId[chip_id_];
     return false;
@@ -321,9 +317,7 @@ bool ApexManager::PowerCycleChip() {
                            std::to_string(kApexPowerCtrlGpioId[chip_id_]));
 
   // Power off chip.
-  int r =
-      base::WriteFile(gpio_path.Append("value"), &kGpioValueLow, kGpioValueLen);
-  if (r < 0) {
+  if (!base::WriteFile(gpio_path.Append("value"), kGpioValueLow)) {
     PLOG(ERROR) << "Failed to set GPIO " << kApexPowerCtrlGpioId[chip_id_]
                 << " value to low.";
     return false;
@@ -347,9 +341,7 @@ bool ApexManager::PowerCycleChip() {
   usleep(kApexPowerCycleSlpTimeUs);
 
   // Power on chip.
-  r = base::WriteFile(gpio_path.Append("value"), &kGpioValueHigh,
-                      kGpioValueLen);
-  if (r < 0) {
+  if (!base::WriteFile(gpio_path.Append("value"), kGpioValueHigh)) {
     PLOG(ERROR) << "Failed to set GPIO " << kApexPowerCtrlGpioId[chip_id_]
                 << " value to high.";
     return false;

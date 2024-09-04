@@ -96,13 +96,11 @@ class VideoDeviceTest : public ::testing::Test {
         mount_path_.Append(file).Append(kDevicePoint);
     ASSERT_TRUE(base::CreateDirectory(device_point_path));
     base::FilePath vendor_id_path = device_point_path.Append("idVendor");
-    ASSERT_EQ(strlen(vid),
-              base::WriteFile(vendor_id_path, vid, strlen(vid)));
+    ASSERT_TRUE(base::WriteFile(vendor_id_path, vid));
     base::FilePath product_id_path = device_point_path.Append("idProduct");
-    ASSERT_EQ(strlen(pid),
-              base::WriteFile(product_id_path, pid, strlen(pid)));
+    ASSERT_TRUE(base::WriteFile(product_id_path, pid));
     base::FilePath dev_file_path = dev_dir_.Append(file);
-    ASSERT_EQ(0, base::WriteFile(dev_file_path, "", 0));
+    ASSERT_TRUE(base::WriteFile(dev_file_path, ""));
     LOG(ERROR) << dev_file_path.value();
   }
 

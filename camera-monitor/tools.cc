@@ -166,8 +166,7 @@ bool HotplugDeviceGuado(uint16_t vid, uint16_t pid, FILE* stream) {
   std::string out_string = "out";
   base::FilePath direction_path("/sys/class/gpio/gpio" + gpio_string +
                                 "/direction");
-  if (base::WriteFile(direction_path, out_string.c_str(), out_string.length()) <
-      0) {
+  if (!base::WriteFile(direction_path, out_string)) {
     LOG(WARNING) << "Failed to set GPIO direction.";
     return false;
   }
@@ -175,7 +174,7 @@ bool HotplugDeviceGuado(uint16_t vid, uint16_t pid, FILE* stream) {
   // Turn off power going to gpio.
   std::string toggle = "0";
   base::FilePath toggle_path("/sys/class/gpio/gpio" + gpio_string + "/value");
-  if (base::WriteFile(toggle_path, toggle.c_str(), toggle.length()) < 0) {
+  if (!base::WriteFile(toggle_path, toggle)) {
     LOG(WARNING) << "Failed to cut GPIO power.";
     return false;
   }
@@ -186,7 +185,7 @@ bool HotplugDeviceGuado(uint16_t vid, uint16_t pid, FILE* stream) {
 
   // Bring back power going to gpio.
   toggle = "1";
-  if (base::WriteFile(toggle_path, toggle.c_str(), toggle.length()) < 0) {
+  if (!base::WriteFile(toggle_path, toggle)) {
     LOG(WARNING) << "Failed to turn on GPIO.";
     return false;
   }

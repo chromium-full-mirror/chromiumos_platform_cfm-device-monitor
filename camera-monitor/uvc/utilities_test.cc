@@ -37,11 +37,9 @@ class UtilitiesTest : public ::testing::Test {
     base::FilePath device_point_path = file_path.Append(kDevicePoint);
     ASSERT_TRUE(base::CreateDirectory(device_point_path));
     base::FilePath vendor_id_path = device_point_path.Append("idVendor");
-    ASSERT_EQ(strlen(vid),
-              base::WriteFile(vendor_id_path, vid, strlen(vid)));
+    ASSERT_TRUE(base::WriteFile(vendor_id_path, vid));
     base::FilePath product_id_path = device_point_path.Append("idProduct");
-    ASSERT_EQ(strlen(pid),
-              base::WriteFile(product_id_path, pid, strlen(pid)));
+    ASSERT_TRUE(base::WriteFile(product_id_path, pid));
   }
 
   base::ScopedTempDir temp_dir_;
