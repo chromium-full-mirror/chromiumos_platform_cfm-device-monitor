@@ -1,9 +1,13 @@
-// Copyright 2017 The Chromium OS Authors. All rights reserved.
+// Copyright 2017 The ChromiumOS Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #include "cfm-device-monitor/camera-monitor/tools.h"
 
+#include <base/files/file_util.h>
+#include <base/logging.h>
+#include <base/threading/platform_thread.h>
+#include <base/time/time.h>
 #include <poll.h>
 #include <unistd.h>
 
@@ -11,10 +15,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-
-#include "base/files/file_util.h"
-#include "base/logging.h"
-#include "base/threading/platform_thread.h"
 
 namespace huddly_monitor {
 
