@@ -1,22 +1,23 @@
-// Copyright 2017 The Chromium OS Authors. All rights reserved.
+// Copyright 2017 The ChromiumOS Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
 #include "cfm-device-monitor/camera-monitor/abstract_monitor.h"
 
 #include <assert.h>
+#include <base/functional/bind.h>
+#include <base/logging.h>
+#include <base/run_loop.h>
+#include <base/task/single_thread_task_runner.h>
+#include <base/time/time.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <sys/mman.h>
 #include <unistd.h>
-#include <string>
 
-#include "base/functional/bind.h"
-#include "base/logging.h"
-#include "base/run_loop.h"
-#include "base/task/single_thread_task_runner.h"
+#include <string>
 
 namespace huddly_monitor {
 
