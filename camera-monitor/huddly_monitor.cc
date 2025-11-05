@@ -19,6 +19,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <utility>
 
 #include "cfm-device-monitor/camera-monitor/tools.h"
 #include "cfm-device-monitor/camera-monitor/uvc/huddly_go_device.h"
@@ -73,7 +74,7 @@ bool HuddlyMonitor::InitDBus() {
   if (!bus_) {
     dbus::Bus::Options options;
     options.bus_type = dbus::Bus::SYSTEM;
-    bus_ = new dbus::Bus(options);
+    bus_ = new dbus::Bus(std::move(options));
   }
   if (!bus_->Connect()) {
     LOG(ERROR) << "Failed to connect to D-Bus";
